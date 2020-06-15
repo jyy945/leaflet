@@ -1,24 +1,17 @@
 import {Map} from '../Map';
 import {Handler} from '../../core/Handler';
 
-/*
- * L.Handler.DoubleClickZoom is used to handle double-click zoom on the map, enabled by default.
- */
-
-// @namespace Map
-// @section Interaction Options
+// 双击缩放处理器
 
 Map.mergeOptions({
-	// @option doubleClickZoom: Boolean|String = true
-	// Whether the map can be zoomed in by double clicking on it and
-	// zoomed out by double clicking while holding shift. If passed
-	// `'center'`, double-click zoom will zoom to the center of the
-	//  view regardless of where the mouse was.
+	// 是否可以通过双击地图来放大地图和通过双击来缩小地图，
+	// 如果传递的是center，则无论鼠标在何处，双击缩放都将缩放到视图的中心
 	doubleClickZoom: true
 });
 
 export var DoubleClickZoom = Handler.extend({
 	addHooks: function () {
+		// 向map注册双击事件
 		this._map.on('dblclick', this._onDoubleClick, this);
 	},
 
@@ -26,12 +19,15 @@ export var DoubleClickZoom = Handler.extend({
 		this._map.off('dblclick', this._onDoubleClick, this);
 	},
 
+	// 双击事件
 	_onDoubleClick: function (e) {
 		var map = this._map,
 		    oldZoom = map.getZoom(),
 		    delta = map.options.zoomDelta,
+			// 若按住了shift按键则缩小地图，否则放大地图
 		    zoom = e.originalEvent.shiftKey ? oldZoom - delta : oldZoom + delta;
 
+		// 若配置项设置为center则调用setZoom，否则调用setZoomAround
 		if (map.options.doubleClickZoom === 'center') {
 			map.setZoom(zoom);
 		} else {
@@ -40,16 +36,5 @@ export var DoubleClickZoom = Handler.extend({
 	}
 });
 
-// @section Handlers
-//
-// Map properties include interaction handlers that allow you to control
-// interaction behavior in runtime, enabling or disabling certain features such
-// as dragging or touch zoom (see `Handler` methods). For example:
-//
-// ```js
-// map.doubleClickZoom.disable();
-// ```
-//
-// @property doubleClickZoom: Handler
-// Double click zoom handler.
+// 向map添加注册处理器初始化钩子函数
 Map.addInitHook('addHandler', 'doubleClickZoom', DoubleClickZoom);

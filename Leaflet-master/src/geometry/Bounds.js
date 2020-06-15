@@ -30,6 +30,7 @@ export function Bounds(a, b) {
 
 	var points = b ? [a, b] : a;
 
+	// 对传入的点进行遍历，得到范围的min和max
 	for (var i = 0, len = points.length; i < len; i++) {
 		this.extend(points[i]);
 	}
@@ -41,10 +42,7 @@ Bounds.prototype = {
 	extend: function (point) { // (Point)
 		point = toPoint(point);
 
-		// @property min: Point
-		// The top left corner of the rectangle.
-		// @property max: Point
-		// The bottom right corner of the rectangle.
+		// 若未设置min和max则将该点设置为min和max，否则对已存在的点进行比较，来设置min和max
 		if (!this.min && !this.max) {
 			this.min = point.clone();
 			this.max = point.clone();

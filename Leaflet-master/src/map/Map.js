@@ -189,12 +189,7 @@ export var Map = Evented.extend({
 		return this.setZoom(this._zoom - delta, options);
 	},
 
-	// @method setZoomAround(latlng: LatLng, zoom: Number, options: Zoom options): this
-	// Zooms the map while keeping a specified geographical point on the map
-	// stationary (e.g. used internally for scroll zoom and double-click zoom).
-	// @alternative
-	// @method setZoomAround(offset: Point, zoom: Number, options: Zoom options): this
-	// Zooms the map while keeping a specified pixel on the map (relative to the top-left corner) stationary.
+	// 设置地图范围中心为新点
 	setZoomAround: function (latlng, zoom, options) {
 		var scale = this.getZoomScale(zoom),
 		    viewHalf = this.getSize().divideBy(2),
@@ -696,11 +691,9 @@ export var Map = Evented.extend({
 	// 添加处理器
 	addHandler: function (name, HandlerClass) {
 		if (!HandlerClass) { return this; }
-
-		var handler = this[name] = new HandlerClass(this);
-
-		this._handlers.push(handler);
-		// 若初始化配置项设置了name，则启动处理器
+		var handler = this[name] = new HandlerClass(this);	// 创建处理器实例
+		this._handlers.push(handler);	// 将处理器加入到map中的_handlers缓存中
+		// 若初始化配置项开启了该处理器，则启动处理器
 		if (this.options[name]) {
 			handler.enable();
 		}
@@ -958,9 +951,6 @@ export var Map = Evented.extend({
 		return this.options.crs.pointToLatLng(toPoint(point), zoom);	// 获取经纬度
 	},
 
-	// @method layerPointToLatLng(point: Point): LatLng
-	// Given a pixel coordinate relative to the [origin pixel](#map-getpixelorigin),
-	// returns the corresponding geographical coordinate (for the current zoom level).
 	// 将point点转换为经纬度
 	layerPointToLatLng: function (point) {
 		var projectedPoint = toPoint(point).add(this.getPixelOrigin());
@@ -1027,9 +1017,7 @@ export var Map = Evented.extend({
 		return this.layerPointToContainerPoint(this.latLngToLayerPoint(toLatLng(latlng)));
 	},
 
-	// @method mouseEventToContainerPoint(ev: MouseEvent): Point
-	// Given a MouseEvent object, returns the pixel coordinate relative to the
-	// map container where the event took place.
+	// 将鼠标点击的位置转换为container上的点
 	mouseEventToContainerPoint: function (e) {
 		return DomEvent.getMousePosition(e, this._container);
 	},
@@ -1311,6 +1299,7 @@ export var Map = Evented.extend({
 
 	_mouseEvents: ['click', 'dblclick', 'mouseover', 'mouseout', 'contextmenu'],
 
+	// 触发dom事件，对事件对象进行包装
 	_fireDOMEvent: function (e, type, targets) {
 
 		if (e.type === 'click') {
@@ -1341,7 +1330,8 @@ export var Map = Evented.extend({
 			originalEvent: e
 		};
 
-		// 若不是keypress、keydown、keyup事件类型，则
+		// 若不是keypress、keydown、keyup事件类型，则在事件对象中加入相关信息，
+		// 包括相对于map dom元素的位置，相对于主图层的位置，以及经纬度
 		if (e.type !== 'keypress' && e.type !== 'keydown' && e.type !== 'keyup') {
 			// 若存在getLatLng方法且无_radius或者_radius数值小于10，则表示为marker
 			var isMarker = target.getLatLng && (!target._radius || target._radius <= 10);
@@ -1351,8 +1341,9 @@ export var Map = Evented.extend({
 			data.latlng = isMarker ? target.getLatLng() : this.layerPointToLatLng(data.layerPoint);
 		}
 
+		// 出发绑定在对象上的对应的事件
 		for (var i = 0; i < targets.length; i++) {
-			targets[i].fire(type, data, true);
+			targets[i].fire(type, data, true);	// 触发事件
 			if (data.originalEvent._stopped ||
 				(targets[i].options.bubblingMouseEvents === false && Util.indexOf(this._mouseEvents, type) !== -1)) { return; }
 		}

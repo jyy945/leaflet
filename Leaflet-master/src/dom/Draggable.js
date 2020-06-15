@@ -35,15 +35,11 @@ var MOVE = {
 	MSPointerDown: 'touchmove'
 };
 
-
+// 拖动事件对象
 export var Draggable = Evented.extend({
 
 	options: {
-		// @section
-		// @aka Draggable options
-		// @option clickTolerance: Number = 3
-		// The max number of pixels a user can shift the mouse pointer during a click
-		// for it to be considered a valid click (as opposed to a mouse drag).
+		// 用户在单击期间可以移动鼠标指针的最大像素数，以将其视为有效点击（与鼠标拖动相反
 		clickTolerance: 3
 	},
 

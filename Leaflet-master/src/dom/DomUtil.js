@@ -216,10 +216,6 @@ export function setTransform(el, offset, scale) {
 		(scale ? ' scale(' + scale + ')' : '');
 }
 
-// @function setPosition(el: HTMLElement, position: Point)
-// Sets the position of `el` to coordinates specified by `position`,
-// using CSS translate or top/left positioning depending on the browser
-// (used by Leaflet internally to position its layers).
 // 设置dom元素位置
 export function setPosition(el, point) {
 	el._leaflet_pos = point;
@@ -246,11 +242,11 @@ export function getPosition(el) {
 // by Leaflet to override the behaviour of any click-and-drag interaction on
 // the map. Affects drag interactions on the whole document.
 
-// @function enableTextSelection()
-// Cancels the effects of a previous [`L.DomUtil.disableTextSelection`](#domutil-disabletextselection).
+// 设置文本是否可选择
 export var disableTextSelection;
 export var enableTextSelection;
 var _userSelect;
+// chrome支持onselectstart，若存在则可以使用js控制，否则使用css控制
 if ('onselectstart' in document) {
 	disableTextSelection = function () {
 		DomEvent.on(window, 'selectstart', DomEvent.preventDefault);

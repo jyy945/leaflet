@@ -206,6 +206,7 @@ export function stop(e) {
 // @function getMousePosition(ev: DOMEvent, container?: HTMLElement): Point
 // Gets normalized mouse position from a DOM event relative to the
 // `container` (border excluded) or to the whole page if not specified.
+// 获取鼠标点击位置
 export function getMousePosition(e, container) {
 	if (!container) {
 		return new Point(e.clientX, e.clientY);

@@ -1,41 +1,29 @@
 import {Class} from './Class';
 
-/*
-	L.Handler is a base class for handler classes that are used internally to inject
-	interaction features like dragging to classes like Map and Marker.
-*/
-
-// @class Handler
-// @aka L.Handler
-// Abstract class for map interaction handlers
-
+// 处理器类
 export var Handler = Class.extend({
 	initialize: function (map) {
 		this._map = map;
 	},
 
-	// @method enable(): this
-	// Enables the handler
+	// 启动处理器
 	enable: function () {
 		if (this._enabled) { return this; }
 
 		this._enabled = true;
-		this.addHooks();
+		this.addHooks();	// 触发处理器实例的钩子函数
 		return this;
 	},
 
-	// @method disable(): this
-	// Disables the handler
+	// 关闭处理器
 	disable: function () {
 		if (!this._enabled) { return this; }
-
 		this._enabled = false;
-		this.removeHooks();
+		this.removeHooks();	// 移除处理器实例的钩子函数
 		return this;
 	},
 
-	// @method enabled(): Boolean
-	// Returns `true` if the handler is enabled
+	// 处理器是否已经启动
 	enabled: function () {
 		return !!this._enabled;
 	}

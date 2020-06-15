@@ -6,16 +6,9 @@ import * as Util from '../../core/Util';
 import * as DomUtil from '../../dom/DomUtil';
 import {toLatLngBounds as latLngBounds} from '../../geo/LatLngBounds';
 import {toBounds} from '../../geometry/Bounds';
-
-/*
- * L.Handler.MapDrag is used to make the map draggable (with panning inertia), enabled by default.
- */
-
-// @namespace Map
-// @section Interaction Options
+// 拖动地图处理器
 Map.mergeOptions({
-	// @option dragging: Boolean = true
-	// Whether the map be draggable with mouse/touch or not.
+	// 是否map可以拖拽移动
 	dragging: true,
 
 	// @section Panning Inertia Options
@@ -37,19 +30,13 @@ Map.mergeOptions({
 	// @option easeLinearity: Number = 0.2
 	easeLinearity: 0.2,
 
-	// TODO refactor, move to CRS
-	// @option worldCopyJump: Boolean = false
-	// With this option enabled, the map tracks when you pan to another "copy"
-	// of the world and seamlessly jumps to the original one so that all overlays
-	// like markers and vector layers are still visible.
+	// 启用此选项后，地图将跟踪您平移到另一世界的“副本”并无缝跳转到原始世界，
+	// 从而使所有叠加层（如标记和矢量层）仍然可见。
 	worldCopyJump: false,
 
-	// @option maxBoundsViscosity: Number = 0.0
-	// If `maxBounds` is set, this option will control how solid the bounds
-	// are when dragging the map around. The default value of `0.0` allows the
-	// user to drag outside the bounds at normal speed, higher values will
-	// slow down map dragging outside bounds, and `1.0` makes the bounds fully
-	// solid, preventing the user from dragging outside the bounds.
+	// 如果设置了maxBounds，此选项将控制在拖动地图时边界的牢固程度。
+	// 默认值0.0允许用户以正常速度拖动到边界外，更高的值将减慢地图在边界外的拖动速度，
+	// 而1.0使边界完全牢固，从而防止用户拖动到边界外
 	maxBoundsViscosity: 0.0
 });
 
@@ -60,6 +47,7 @@ export var Drag = Handler.extend({
 
 			this._draggable = new Draggable(map._mapPane, map._container);
 
+			// 向拖拽对象添加事件监听
 			this._draggable.on({
 				dragstart: this._onDragStart,
 				drag: this._onDrag,
@@ -94,10 +82,11 @@ export var Drag = Handler.extend({
 		return this._draggable && this._draggable._moving;
 	},
 
+	// 开始拖拽事件
 	_onDragStart: function () {
 		var map = this._map;
 
-		map._stop();
+		map._stop();	// 取消动画
 		if (this._map.options.maxBounds && this._map.options.maxBoundsViscosity) {
 			var bounds = latLngBounds(this._map.options.maxBounds);
 
@@ -230,7 +219,5 @@ export var Drag = Handler.extend({
 	}
 });
 
-// @section Handlers
-// @property dragging: Handler
-// Map dragging handler (by both mouse and touch).
+// 向map添加注册拖拽处理器的钩子函数
 Map.addInitHook('addHandler', 'dragging', Drag);

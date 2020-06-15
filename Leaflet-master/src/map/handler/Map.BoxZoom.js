@@ -6,13 +6,7 @@ import * as DomEvent from '../../dom/DomEvent';
 import {LatLngBounds} from '../../geo/LatLngBounds';
 import {Bounds} from '../../geometry/Bounds';
 
-/*
- * L.Handler.BoxZoom is used to add shift-drag zoom interaction to the map
- * (zoom to a selected bounding box), enabled by default.
- */
-
-// @namespace Map
-// @section Interaction Options
+// 框选放大地图
 Map.mergeOptions({
 	// 默认通过按住Shift键的同时拖动鼠标，地图是否可以缩放到指定的矩形区域
 	boxZoom: true
@@ -142,7 +136,5 @@ export var BoxZoom = Handler.extend({
 	}
 });
 
-// @section Handlers
-// @property boxZoom: Handler
-// Box (shift-drag with mouse) zoom handler.
+// 添加boxzoom处理器
 Map.addInitHook('addHandler', 'boxZoom', BoxZoom);

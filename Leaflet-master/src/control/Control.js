@@ -51,8 +51,7 @@ export var Control = Class.extend({
 		return this;
 	},
 
-	// @method getContainer: HTMLElement
-	// Returns the HTMLElement that contains the control.
+	// 获取该控件对应的dom元素
 	getContainer: function () {
 		return this._container;
 	},
@@ -62,32 +61,33 @@ export var Control = Class.extend({
 		this.remove();
 		this._map = map;
 
-		var container = this._container = this.onAdd(map),
-		    pos = this.getPosition(),
-		    corner = map._controlCorners[pos];
+		var container = this._container = this.onAdd(map),	// 创建控件dom元素
+		    pos = this.getPosition(),	// 获取控件的位置信息
+		    corner = map._controlCorners[pos];	// map初始化中创建了四个corner元素，使用pos找到该dom元素
 
 		DomUtil.addClass(container, 'leaflet-control');
 
+		// 若pos包含bottom，则将corner节点放在父元素的尾部，否则放在头部
 		if (pos.indexOf('bottom') !== -1) {
 			corner.insertBefore(container, corner.firstChild);
 		} else {
 			corner.appendChild(container);
 		}
-
+		// 注册map的卸载监听事件，若map注销，则将
 		this._map.on('unload', this.remove, this);
 
 		return this;
 	},
 
-	// @method remove: this
-	// Removes the control from the map it is currently active on.
+	// 移除控件
 	remove: function () {
 		if (!this._map) {
 			return this;
 		}
 
-		DomUtil.remove(this._container);
+		DomUtil.remove(this._container);	// 删除该控件的dom节点
 
+		// 若存在onRemove，则表示需要注销控件上已经在map节点上注册的事件监听
 		if (this.onRemove) {
 			this.onRemove(this._map);
 		}
@@ -137,6 +137,7 @@ Map.include({
 		return this;
 	},
 
+	// 初始化四个corner节点，用于放置控件dom元素
 	_initControlPos: function () {
 		var corners = this._controlCorners = {},
 		    l = 'leaflet-',

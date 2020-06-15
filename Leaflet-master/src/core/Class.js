@@ -97,12 +97,11 @@ Class.mergeOptions = function (options) {
 	return this;
 };
 
-// @function addInitHook(fn: Function): this
-// Adds a [constructor hook](#class-constructor-hooks) to the class.
-// 添加初始化钩子
+// 添加初始化钩子函数
 Class.addInitHook = function (fn) { // (Function) || (String, args...)
 	var args = Array.prototype.slice.call(arguments, 1);
 
+	// 若不为function，则调用对象中的fn方法，一般为handler
 	var init = typeof fn === 'function' ? fn : function () {
 		this[fn].apply(this, args);
 	};

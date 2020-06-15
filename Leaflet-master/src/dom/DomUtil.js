@@ -291,11 +291,7 @@ export function enableImageDrag() {
 }
 
 var _outlineElement, _outlineStyle;
-// @function preventOutline(el: HTMLElement)
-// Makes the [outline](https://developer.mozilla.org/docs/Web/CSS/outline)
-// of the element `el` invisible. Used internally by Leaflet to prevent
-// focusable elements from displaying an outline when the user performs a
-// drag interaction on them.
+// 取消outline
 export function preventOutline(element) {
 	while (element.tabIndex === -1) {
 		element = element.parentNode;
@@ -308,8 +304,7 @@ export function preventOutline(element) {
 	DomEvent.on(window, 'keydown', restoreOutline);
 }
 
-// @function restoreOutline()
-// Cancels the effects of a previous [`L.DomUtil.preventOutline`]().
+// 恢复outline，
 export function restoreOutline() {
 	if (!_outlineElement) { return; }
 	_outlineElement.style.outline = _outlineStyle;

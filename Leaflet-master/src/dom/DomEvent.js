@@ -152,13 +152,7 @@ function removeOne(obj, type, fn, context) {
 	obj[eventsKey][id] = null;
 }
 
-// @function stopPropagation(ev: DOMEvent): this
-// Stop the given event from propagation to parent elements. Used inside the listener functions:
-// ```js
-// L.DomEvent.on(div, 'click', function (ev) {
-// 	L.DomEvent.stopPropagation(ev);
-// });
-// ```
+// 禁止冒泡
 export function stopPropagation(e) {
 
 	if (e.stopPropagation) {
@@ -180,9 +174,7 @@ export function disableScrollPropagation(el) {
 	return this;
 }
 
-// @function disableClickPropagation(el: HTMLElement): this
-// Adds `stopPropagation` to the element's `'click'`, `'doubleclick'`,
-// `'mousedown'` and `'touchstart'` events (plus browser variants).
+// mousedown touchstart dblclick事件禁止冒泡
 export function disableClickPropagation(el) {
 	on(el, 'mousedown touchstart dblclick', stopPropagation);
 	addOne(el, 'click', fakeStop);

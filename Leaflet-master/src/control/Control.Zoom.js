@@ -18,39 +18,38 @@ export var Zoom = Control.extend({
 	options: {
 		position: 'topleft',
 
-		// @option zoomInText: String = '+'
-		// The text set on the 'zoom in' button.
+		// 放大按键文本
 		zoomInText: '+',
 
-		// @option zoomInTitle: String = 'Zoom in'
-		// The title set on the 'zoom in' button.
+		// 放大按键的提示信息
 		zoomInTitle: 'Zoom in',
-
-		// @option zoomOutText: String = '&#x2212;'
-		// The text set on the 'zoom out' button.
+		// 缩小按键的文本：-
 		zoomOutText: '&#x2212;',
-
-		// @option zoomOutTitle: String = 'Zoom out'
-		// The title set on the 'zoom out' button.
+		// 缩小按键的提示信息
 		zoomOutTitle: 'Zoom out'
 	},
 
+	// 创建缩放控件dom元素以及注册相关的事件监听
 	onAdd: function (map) {
 		var zoomName = 'leaflet-control-zoom',
 		    container = DomUtil.create('div', zoomName + ' leaflet-bar'),
 		    options = this.options;
 
+		// 创建放大按键dom元素
 		this._zoomInButton  = this._createButton(options.zoomInText, options.zoomInTitle,
 		        zoomName + '-in',  container, this._zoomIn);
+		// 创建缩小按键的dom元素
 		this._zoomOutButton = this._createButton(options.zoomOutText, options.zoomOutTitle,
 		        zoomName + '-out', container, this._zoomOut);
 
-		this._updateDisabled();
+		this._updateDisabled();	// 更新按键的显示状态，点击和不可点击状态
+		// 在map上注册事件，控制按键的显示状态
 		map.on('zoomend zoomlevelschange', this._updateDisabled, this);
 
 		return container;
 	},
 
+	// 注销在map节点上注册的事件
 	onRemove: function (map) {
 		map.off('zoomend zoomlevelschange', this._updateDisabled, this);
 	},
@@ -67,31 +66,32 @@ export var Zoom = Control.extend({
 		return this;
 	},
 
+	// 点击放大按键的回调
 	_zoomIn: function (e) {
 		if (!this._disabled && this._map._zoom < this._map.getMaxZoom()) {
 			this._map.zoomIn(this._map.options.zoomDelta * (e.shiftKey ? 3 : 1));
 		}
 	},
 
+	// 点击缩小按键的回调
 	_zoomOut: function (e) {
 		if (!this._disabled && this._map._zoom > this._map.getMinZoom()) {
 			this._map.zoomOut(this._map.options.zoomDelta * (e.shiftKey ? 3 : 1));
 		}
 	},
 
+	// 创建按键dom元素
 	_createButton: function (html, title, className, container, fn) {
 		var link = DomUtil.create('a', className, container);
 		link.innerHTML = html;
 		link.href = '#';
 		link.title = title;
 
-		/*
-		 * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-		 */
 		link.setAttribute('role', 'button');
 		link.setAttribute('aria-label', title);
 
-		DomEvent.disableClickPropagation(link);
+		DomEvent.disableClickPropagation(link);	// 禁止冒泡到父元素
+		// 为按键注册点击事件，点击时禁止冒泡避免默认行为，然后执行fn，最后再次将焦点放在控件dom节点上
 		DomEvent.on(link, 'click', DomEvent.stop);
 		DomEvent.on(link, 'click', fn, this);
 		DomEvent.on(link, 'click', this._refocusOnMap, this);
@@ -99,6 +99,7 @@ export var Zoom = Control.extend({
 		return link;
 	},
 
+	// 更新按键的状态
 	_updateDisabled: function () {
 		var map = this._map,
 		    className = 'leaflet-disabled';
@@ -106,6 +107,7 @@ export var Zoom = Control.extend({
 		DomUtil.removeClass(this._zoomInButton, className);
 		DomUtil.removeClass(this._zoomOutButton, className);
 
+		// 若_disabled为true，或者zoom值达到zoom的范围，则禁止点击按键
 		if (this._disabled || map._zoom === map.getMinZoom()) {
 			DomUtil.addClass(this._zoomOutButton, className);
 		}
@@ -120,13 +122,10 @@ Map.mergeOptions({
 	zoomControl: true
 });
 
+// 添加map初始化钩子，用于在初始化期间构建缩放控件
 Map.addInitHook(function () {
 	// 若配置项设置了zoomControl，则添加zoom控件
 	if (this.options.zoomControl) {
-		// @section Controls
-		// @property zoomControl: Control.Zoom
-		// The default zoom control (only available if the
-		// [`zoomControl` option](#map-zoomcontrol) was `true` when creating the map).
 		this.zoomControl = new Zoom();
 		this.addControl(this.zoomControl);
 	}

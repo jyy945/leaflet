@@ -3,15 +3,7 @@ import {SphericalMercator} from '../projection/Projection.SphericalMercator';
 import {toTransformation} from '../../geometry/Transformation';
 import * as Util from '../../core/Util';
 
-/*
- * @namespace CRS
- * @crs L.CRS.EPSG3857
- *
- * The most common CRS for online maps, used by almost all free and commercial
- * tile providers. Uses Spherical Mercator projection. Set in by default in
- * Map's `crs` option.
- */
-
+// 通用的crs，使用球体墨卡托投影
 export var EPSG3857 = Util.extend({}, Earth, {
 	code: 'EPSG:3857',
 	projection: SphericalMercator,	// 投影设置为球体墨卡托投影

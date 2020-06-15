@@ -5,23 +5,12 @@ import * as Util from '../core/Util';
 import * as DomEvent from '../dom/DomEvent';
 import * as DomUtil from '../dom/DomUtil';
 
-/*
- * @class Control.Attribution
- * @aka L.Control.Attribution
- * @inherits Control
- *
- * The attribution control allows you to display attribution data in a small text box on a map. It is put on the map by default unless you set its [`attributionControl` option](#map-attributioncontrol) to `false`, and it fetches attribution texts from layers with the [`getAttribution` method](#layer-getattribution) automatically. Extends Control.
- */
 
+// 属性文本控件
 export var Attribution = Control.extend({
-	// @section
-	// @aka Control.Attribution options
 	options: {
-		position: 'bottomright',
-
-		// @option prefix: String = 'Leaflet'
-		// The HTML text shown before the attributions. Pass `false` to disable.
-		prefix: '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>'
+		position: 'bottomright',	// 默认显示位置为右下角
+		prefix: '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>'	// 默认显示的属性文本前缀
 	},
 
 	initialize: function (options) {
@@ -30,33 +19,32 @@ export var Attribution = Control.extend({
 		this._attributions = {};
 	},
 
+	// 创建属性文本控件dom元素
 	onAdd: function (map) {
 		map.attributionControl = this;
 		this._container = DomUtil.create('div', 'leaflet-control-attribution');
-		DomEvent.disableClickPropagation(this._container);
+		DomEvent.disableClickPropagation(this._container);	// 控制操作控件时防止事件冒泡到父元素
 
-		// TODO ugly, refactor
+		// 获取map中的所有图层的属性文本
 		for (var i in map._layers) {
 			if (map._layers[i].getAttribution) {
 				this.addAttribution(map._layers[i].getAttribution());
 			}
 		}
 
-		this._update();
+		this._update();	// 构建属性文本，并将其添加到属性文本控件dom元素中
 
 		return this._container;
 	},
 
-	// @method setPrefix(prefix: String): this
-	// Sets the text before the attributions.
+	// 设置属性文本的前缀
 	setPrefix: function (prefix) {
 		this.options.prefix = prefix;
 		this._update();
 		return this;
 	},
 
-	// @method addAttribution(text: String): this
-	// Adds an attribution text (e.g. `'Vector data &copy; Mapbox'`).
+	// 添加图层的属性文本
 	addAttribution: function (text) {
 		if (!text) { return this; }
 
@@ -65,13 +53,12 @@ export var Attribution = Control.extend({
 		}
 		this._attributions[text]++;
 
-		this._update();
+		this._update();	//构建属性文本，并将其添加到属性文本控件dom元素中
 
 		return this;
 	},
 
-	// @method removeAttribution(text: String): this
-	// Removes an attribution text.
+	// 将控件中对应的属性文本删除
 	removeAttribution: function (text) {
 		if (!text) { return this; }
 
@@ -83,6 +70,7 @@ export var Attribution = Control.extend({
 		return this;
 	},
 
+	// 构建属性文本，并将其添加到属性文本控件dom元素中，多个文本使用|分割
 	_update: function () {
 		if (!this._map) { return; }
 
@@ -112,6 +100,7 @@ Map.mergeOptions({
 	attributionControl: true
 });
 
+// map初始化钩子函数，用于构建属性文本控件
 Map.addInitHook(function () {
 	if (this.options.attributionControl) {
 		new Attribution().addTo(this);

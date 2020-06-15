@@ -21,6 +21,7 @@ import * as Util from '../../core/Util';
  * and methods can't be added to them with the `include` function.
  */
 
+// 定义默认的crs的方法
 export var CRS = {
 	// 经纬度转为屏幕坐标
 	latLngToPoint: function (latlng, zoom) {

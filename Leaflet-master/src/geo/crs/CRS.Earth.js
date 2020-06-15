@@ -1,25 +1,15 @@
 import {CRS} from './CRS';
 import * as Util from '../../core/Util';
 
-/*
- * @namespace CRS
- * @crs L.CRS.Earth
- *
- * Serves as the base for CRS that are global such that they cover the earth.
- * Can only be used as the base for other CRS and cannot be used directly,
- * since it does not have a `code`, `projection` or `transformation`. `distance()` returns
- * meters.
- */
 
+// 地球的基本信息，并扩展了CRS的通用方法
 export var Earth = Util.extend({}, CRS, {
 	wrapLng: [-180, 180],
 
-	// Mean Earth Radius, as recommended for use by
-	// the International Union of Geodesy and Geophysics,
-	// see http://rosettacode.org/wiki/Haversine_formula
+	// 球体半径的长度
 	R: 6371000,
 
-	// distance between two geographical points using spherical law of cosines approximation
+	// 计算经纬度之间的距离
 	distance: function (latlng1, latlng2) {
 		var rad = Math.PI / 180,
 		    lat1 = latlng1.lat * rad,

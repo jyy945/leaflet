@@ -32,84 +32,43 @@ import {PosAnimation} from '../dom/PosAnimation';
 export var Map = Evented.extend({
 
 	options: {
-		// @section Map State Options
-		// @option crs: CRS = L.CRS.EPSG3857
-		// The [Coordinate Reference System](#crs) to use. Don't change this if you're not
-		// sure what it means.
+		// 默认使用ESPG3857
 		crs: EPSG3857,
-
-		// @option center: LatLng = undefined
-		// Initial geographic center of the map
+		// 开始地图中心点
 		center: undefined,
-
-		// @option zoom: Number = undefined
-		// Initial map zoom level
+		// 初始zoom
 		zoom: undefined,
+		// 最小zoom，默认为0，若设置了zoom且比其小，则默认为minzoom的值
+		minZoom: undefined,
 
-		// @option minZoom: Number = *
-		// Minimum zoom level of the map.
-		// If not specified and at least one `GridLayer` or `TileLayer` is in the map,
-		// the lowest of their `minZoom` options will be used instead.
-		minZoom: undefined,	// 最小zoom，默认为0，若设置了zoom且比其小，则默认为minzoom的值
-
-		// @option maxZoom: Number = *
-		// Maximum zoom level of the map.
-		// If not specified and at least one `GridLayer` or `TileLayer` is in the map,
-		// the highest of their `maxZoom` options will be used instead.
+		// 最大zoom，若设置了zoom且比其大，maxZoom
 		maxZoom: undefined,	// 最大zoom
 
-		// @option layers: Layer[] = []
-		// Array of layers that will be added to the map initially
+		// 初始化地图时添加的图层
 		layers: [],
 
-		// @option maxBounds: LatLngBounds = null
-		// When this option is set, the map restricts the view to the given
-		// geographical bounds, bouncing the user back if the user tries to pan
-		// outside the view. To set the restriction dynamically, use
-		// [`setMaxBounds`](#map-setmaxbounds) method.
-		maxBounds: undefined,	// 地图的显示范围，默认不设置地图的显示范围
+		// 地图的显示范围，默认不设置地图的显示范围
+		maxBounds: undefined,
 
-		// @option renderer: Renderer = *
-		// The default method for drawing vector layers on the map. `L.SVG`
-		// or `L.Canvas` by default depending on browser support.
+		// 使用那种方式进行渲染，svg或canvas
 		renderer: undefined,
 
 
-		// @section Animation Options
-		// @option zoomAnimation: Boolean = true
-		// Whether the map zoom animation is enabled. By default it's enabled
-		// in all browsers that support CSS3 Transitions except Android.
-		zoomAnimation: true,	// 是否启用地图缩放动画
+		// 是否启用地图缩放动画
+		zoomAnimation: true,
 
-		// @option zoomAnimationThreshold: Number = 4
-		// Won't animate zoom if the zoom difference exceeds this value.
+		// 若所发差异超过此值，则不启用缩放动画
 		zoomAnimationThreshold: 4,
 
-		// @option fadeAnimation: Boolean = true
-		// Whether the tile fade animation is enabled. By default it's enabled
-		// in all browsers that support CSS3 Transitions except Android.
 		// 默认开启淡入淡出动画
 		fadeAnimation: true,
 
-		// @option markerZoomAnimation: Boolean = true
-		// Whether markers animate their zoom with the zoom animation, if disabled
-		// they will disappear for the length of the animation. By default it's
-		// enabled in all browsers that support CSS3 Transitions except Android.
+		// 标记是否使用缩放动画设置其缩放的动画，如果禁用，标记将在动画的长度内消失
 		markerZoomAnimation: true,
-
-		// @option transform3DLimit: Number = 2^23
-		// Defines the maximum size of a CSS translation transform. The default
-		// value should not be changed unless a web browser positions layers in
-		// the wrong place after doing a large `panBy`.
+		// CSS转换的最大大小
 		transform3DLimit: 8388608, // Precision limit of a 32-bit float
 
-		// @section Interaction Options
-		// @option zoomSnap: Number = 1
-		// Forces the map's zoom level to always be a multiple of this, particularly
-		// right after a [`fitBounds()`](#map-fitbounds) or a pinch-zoom.
-		// By default, the zoom level snaps to the nearest integer; lower values
-		// (e.g. `0.5` or `0.1`) allow for greater granularity. A value of `0`
-		// means the zoom level will not be snapped after `fitBounds` or a pinch-zoom.
+		// 地图缩放倍数，默认每次缩放为1
 		zoomSnap: 1,	// 地图缩放倍数，默认每次缩放为1
 
 		// @option zoomDelta: Number = 1
@@ -119,8 +78,7 @@ export var Map = Evented.extend({
 		// Values smaller than `1` (e.g. `0.5`) allow for greater granularity.
 		zoomDelta: 1,
 
-		// @option trackResize: Boolean = true
-		// Whether the map automatically handles browser window resize to update itself.
+		// 地图是否自动处理浏览器窗口调整以更新自身.
 		trackResize: true
 	},
 
@@ -210,8 +168,7 @@ export var Map = Evented.extend({
 		return this;
 	},
 
-	// @method setZoom(zoom: Number, options?: Zoom/pan options): this
-	// Sets the zoom of the map.
+	// 设置zoom值
 	setZoom: function (zoom, options) {
 		if (!this._loaded) {
 			this._zoom = zoom;
@@ -220,15 +177,13 @@ export var Map = Evented.extend({
 		return this.setView(this.getCenter(), zoom, {zoom: options});
 	},
 
-	// @method zoomIn(delta?: Number, options?: Zoom options): this
-	// Increases the zoom of the map by `delta` ([`zoomDelta`](#map-zoomdelta) by default).
+	// 放大地图
 	zoomIn: function (delta, options) {
 		delta = delta || (Browser.any3d ? this.options.zoomDelta : 1);
 		return this.setZoom(this._zoom + delta, options);
 	},
 
-	// @method zoomOut(delta?: Number, options?: Zoom options): this
-	// Decreases the zoom of the map by `delta` ([`zoomDelta`](#map-zoomdelta) by default).
+	// 缩小地图
 	zoomOut: function (delta, options) {
 		delta = delta || (Browser.any3d ? this.options.zoomDelta : 1);
 		return this.setZoom(this._zoom - delta, options);
@@ -816,11 +771,6 @@ export var Map = Evented.extend({
 		return this;
 	},
 
-	// @section Other Methods
-	// @method createPane(name: String, container?: HTMLElement): HTMLElement
-	// Creates a new [map pane](#map-pane) with the given name if it doesn't exist already,
-	// then returns it. The pane is created as a child of `container`, or
-	// as a child of the main map pane if not set.
 	// 创建面板
 	createPane: function (name, container) {
 		var className = 'leaflet-pane' + (name ? ' leaflet-' + name.replace('Pane', '') + '-pane' : ''),
@@ -832,18 +782,14 @@ export var Map = Evented.extend({
 		return pane;
 	},
 
-	// @section Methods for Getting Map State
-
-	// @method getCenter(): LatLng
-	// Returns the geographical center of the map view
-	// 范围map的视图的中心点
+	// 范围map的视图的中心经纬度点
 	getCenter: function () {
 		this._checkIfLoaded();	// 检查是否还在加载
 
 		if (this._lastCenter && !this._moved()) {
 			return this._lastCenter;
 		}
-		return this.layerPointToLatLng(this._getCenterLayerPoint());
+		return this.layerPointToLatLng(this._getCenterLayerPoint()); // 将主图层的中心点转换为经纬度
 	},
 
 	// @method getZoom(): Number
@@ -1056,7 +1002,7 @@ export var Map = Evented.extend({
 		return this.options.crs.distance(toLatLng(latlng1), toLatLng(latlng2));
 	},
 
-	// 获取point相对于主面板的相对位置
+	// 将container上的点转换为主图层上的点
 	containerPointToLayerPoint: function (point) { // (Point)
 		return toPoint(point).subtract(this._getMapPanePos());
 	},
@@ -1076,9 +1022,7 @@ export var Map = Evented.extend({
 		return this.layerPointToLatLng(layerPoint);
 	},
 
-	// @method latLngToContainerPoint(latlng: LatLng): Point
-	// Given a geographical coordinate, returns the corresponding pixel coordinate
-	// relative to the map container.
+	// 将地理坐标转换为相对于map的dom元素的像素坐标
 	latLngToContainerPoint: function (latlng) {
 		return this.layerPointToContainerPoint(this.latLngToLayerPoint(toLatLng(latlng)));
 	},
@@ -1154,40 +1098,14 @@ export var Map = Evented.extend({
 	_initPanes: function () {
 		var panes = this._panes = {};
 		this._paneRenderers = {};
-
-		// @section
-		//
-		// Panes are DOM elements used to control the ordering of layers on the map. You
-		// can access panes with [`map.getPane`](#map-getpane) or
-		// [`map.getPanes`](#map-getpanes) methods. New panes can be created with the
-		// [`map.createPane`](#map-createpane) method.
-		//
-		// Every map has the following default panes that differ only in zIndex.
-		//
-		// @pane mapPane: HTMLElement = 'auto'
-		// Pane that contains all other map panes
-
 		this._mapPane = this.createPane('mapPane', this._container);	// 创建map主面板，并添加到map元素中
 		DomUtil.setPosition(this._mapPane, new Point(0, 0));	// 设置map主面板的位置为0，0位置
-
-		// @pane tilePane: HTMLElement = 200
-		// Pane for `GridLayer`s and `TileLayer`s
-		this.createPane('tilePane');	// 创建瓦片图层面板，添加到map主面板中
-		// @pane overlayPane: HTMLElement = 400
-		// Pane for overlay shadows (e.g. `Marker` shadows)
-		this.createPane('shadowPane');	// 创建shadow图层面板，添加到map主面板中
-		// @pane shadowPane: HTMLElement = 500
-		// Pane for vectors (`Path`s, like `Polyline`s and `Polygon`s), `ImageOverlay`s and `VideoOverlay`s
-		this.createPane('overlayPane');	// 创建overlay图层面板，添加到map主面板中
-		// @pane markerPane: HTMLElement = 600
-		// Pane for `Icon`s of `Marker`s
-		this.createPane('markerPane');	// 创建标记图层面板，添加到map主面板中
-		// @pane tooltipPane: HTMLElement = 650
-		// Pane for `Tooltip`s.
-		this.createPane('tooltipPane');	// 创建工具提示框图层面板，添加到map主面板中
-		// @pane popupPane: HTMLElement = 700
-		// Pane for `Popup`s.
-		this.createPane('popupPane');	// 创建pop框图层面板，添加到map主面板中
+		this.createPane('tilePane');	// 创建瓦片图层面板，添加到map主面板中 HTMLElement = 200
+		this.createPane('shadowPane');	// 创建shadow图层面板，添加到map主面板中 HTMLElement = 400
+		this.createPane('overlayPane');	// 创建overlay图层面板，添加到map主面板中 HTMLElement = 500
+		this.createPane('markerPane');	// 创建标记图层面板，添加到map主面板中 HTMLElement = 600
+		this.createPane('tooltipPane');	// 创建工具提示框图层面板，添加到map主面板中 HTMLElement = 650
+		this.createPane('popupPane');	// 创建pop框图层面板，添加到map主面板中 HTMLElement = 700
 
 		// 若markerZoomAnimation为false，则标记和阴影面板的class设置为leaflet-zoom-hide
 		if (!this.options.markerZoomAnimation) {
@@ -1279,7 +1197,7 @@ export var Map = Evented.extend({
 	},
 
 	_stop: function () {
-		Util.cancelAnimFrame(this._flyToFrame);
+		Util.cancelAnimFrame(this._flyToFrame);	// 取消flyto动画
 		if (this._panAnim) {
 			this._panAnim.stop();
 		}
@@ -1308,43 +1226,17 @@ export var Map = Evented.extend({
 
 	// DOM event handling
 
-	// 初始化交互事件
+	// 初始化交互事件，若不存在remove则为注册，否则为注销
 	_initEvents: function (remove) {
 		this._targets = {};
 		this._targets[Util.stamp(this._container)] = this;
 
 		var onOff = remove ? DomEvent.off : DomEvent.on;
-
-		// @event click: MouseEvent
-		// Fired when the user clicks (or taps) the map.
-		// @event dblclick: MouseEvent
-		// Fired when the user double-clicks (or double-taps) the map.
-		// @event mousedown: MouseEvent
-		// Fired when the user pushes the mouse button on the map.
-		// @event mouseup: MouseEvent
-		// Fired when the user releases the mouse button on the map.
-		// @event mouseover: MouseEvent
-		// Fired when the mouse enters the map.
-		// @event mouseout: MouseEvent
-		// Fired when the mouse leaves the map.
-		// @event mousemove: MouseEvent
-		// Fired while the mouse moves over the map.
-		// @event contextmenu: MouseEvent
-		// Fired when the user pushes the right mouse button on the map, prevents
-		// default browser context menu from showing if there are listeners on
-		// this event. Also fired on mobile when the user holds a single touch
-		// for a second (also called long press).
-		// @event keypress: KeyboardEvent
-		// Fired when the user presses a key from the keyboard that produces a character value while the map is focused.
-		// @event keydown: KeyboardEvent
-		// Fired when the user presses a key from the keyboard while the map is focused. Unlike the `keypress` event,
-		// the `keydown` event is fired for keys that produce a character value and for keys
-		// that do not produce a character value.
-		// @event keyup: KeyboardEvent
-		// Fired when the user releases a key from the keyboard while the map is focused.
+		// 注册或注销事件
 		onOff(this._container, 'click dblclick mousedown mouseup ' +
 			'mouseover mouseout mousemove contextmenu keypress keydown keyup', this._handleDOMEvent, this);
 
+		// 若设置了trackeResize，则地图会自动处理浏览器窗口调整以更新自身
 		if (this.options.trackResize) {
 			onOff(window, 'resize', this._onResize, this);
 		}
@@ -1403,16 +1295,17 @@ export var Map = Evented.extend({
 		return targets;
 	},
 
+	// 处理dom事件
 	_handleDOMEvent: function (e) {
 		if (!this._loaded || DomEvent.skipped(e)) { return; }
 
 		var type = e.type;
 
 		if (type === 'mousedown' || type === 'keypress' || type === 'keyup' || type === 'keydown') {
-			// prevents outline when clicking on keyboard-focusable element
+			// 防止在单击键盘可聚焦元素时出现下划线
 			DomUtil.preventOutline(e.target || e.srcElement);
 		}
-
+		// 触发dom事件
 		this._fireDOMEvent(e, type);
 	},
 
@@ -1433,12 +1326,13 @@ export var Map = Evented.extend({
 
 		if (e._stopped) { return; }
 
-		// Find the layer the event is propagating from and its parents.
+		// 查找事件传播的dom元素及其父dom元素.
 		targets = (targets || []).concat(this._findEventTargets(e, type));
 
 		if (!targets.length) { return; }
 
-		var target = targets[0];
+		var target = targets[0];	// 获取当前的dom元素
+		// 当前和其父元素右键点击事件取消默认行为
 		if (type === 'contextmenu' && target.listens(type, true)) {
 			DomEvent.preventDefault(e);
 		}
@@ -1447,7 +1341,9 @@ export var Map = Evented.extend({
 			originalEvent: e
 		};
 
+		// 若不是keypress、keydown、keyup事件类型，则
 		if (e.type !== 'keypress' && e.type !== 'keydown' && e.type !== 'keyup') {
+			// 若存在getLatLng方法且无_radius或者_radius数值小于10，则表示为marker
 			var isMarker = target.getLatLng && (!target._radius || target._radius <= 10);
 			data.containerPoint = isMarker ?
 				this.latLngToContainerPoint(target.getLatLng()) : this.mouseEventToContainerPoint(e);
@@ -1489,7 +1385,6 @@ export var Map = Evented.extend({
 	},
 
 
-	// private methods for getting map state
 	// 获取主面板的定位位置
 	_getMapPanePos: function () {
 		return DomUtil.getPosition(this._mapPane) || new Point(0, 0);

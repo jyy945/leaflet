@@ -3,7 +3,7 @@ import {version} from '../package.json';
 export {version};
 
 // control
-export * from './control/index';
+export * from './control/index';    // 包含map初始化配置
 
 // core
 export * from './core/index';

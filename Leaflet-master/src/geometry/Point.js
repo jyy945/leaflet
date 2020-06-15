@@ -201,9 +201,6 @@ Point.prototype = {
 // @factory L.point(coords: Number[])
 // Expects an array of the form `[x, y]` instead.
 
-// @alternative
-// @factory L.point(coords: Object)
-// Expects a plain object of the form `{x: Number, y: Number}` instead.
 // 转换为Point对象
 export function toPoint(x, y, round) {
 	if (x instanceof Point) {

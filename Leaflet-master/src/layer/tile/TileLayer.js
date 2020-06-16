@@ -41,40 +41,32 @@ export var TileLayer = GridLayer.extend({
 	// @section
 	// @aka TileLayer options
 	options: {
-		// @option minZoom: Number = 0
-		// The minimum zoom level down to which this layer will be displayed (inclusive).
+		// 最小zoom
 		minZoom: 0,
 
-		// @option maxZoom: Number = 18
-		// The maximum zoom level up to which this layer will be displayed (inclusive).
+		// 最大zoom
 		maxZoom: 18,
 
 		subdomains: 'abc',	// 瓦片服务的子域，可以以一个字符串（每个字母是一个子域名）或字符串数​​组的形式传递。
 
-		// @option errorTileUrl: String = ''
-		// URL to the tile image to show in place of the tile that failed to load.
+		// 加载错误时显示的瓦片url
 		errorTileUrl: '',
 
 		// @option zoomOffset: Number = 0
 		// The zoom number used in tile URLs will be offset with this value.
 		zoomOffset: 0,
 
-		// @option tms: Boolean = false
-		// If `true`, inverses Y axis numbering for tiles (turn this on for [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
+		// 如果为true，则反转图块的Y轴编号（对于TMS服务将其打开）
 		tms: false,
 
-		// @option zoomReverse: Boolean = false
-		// If set to true, the zoom number used in tile URLs will be reversed (`maxZoom - zoom` instead of `zoom`)
+		// 如果设置为true，则将颠倒磁贴URL中使用的缩放编号（maxZoom-缩放而不是缩放）
 		zoomReverse: false,
 
-		// @option detectRetina: Boolean = false
-		// If `true` and user is on a retina display, it will request four tiles of half the specified size and a bigger zoom level in place of one to utilize the high resolution.
+		// 如果为true，并且用户在视网膜显示器上，它将要求使用指定大小的一半和更大的缩放级别的四个图块来代替一个图块，以利用高分辨率。
 		detectRetina: false,
 
-		// @option crossOrigin: Boolean|String = false
-		// Whether the crossOrigin attribute will be added to the tiles.
-		// If a String is provided, all tiles will have their crossOrigin attribute set to the String provided. This is needed if you want to access tile pixel data.
-		// Refer to [CORS Settings](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for valid String values.
+		// 是否将crossOrigin属性添加到图块。如果提供了String，则所有图块的crossOrigin属性都将设置为提供的String。
+		// 如果要访问图块像素数据，这是必需的。有关有效的字符串值，请参阅CORS设置。
 		crossOrigin: false
 	},
 
@@ -84,7 +76,7 @@ export var TileLayer = GridLayer.extend({
 
 		options = Util.setOptions(this, options);
 
-		// detecting retina displays, adjusting tileSize and zoom levels
+		// 检测视网膜显示，调整平铺和缩放级别
 		if (options.detectRetina && Browser.retina && options.maxZoom > 0) {
 
 			options.tileSize = Math.floor(options.tileSize / 2);
@@ -132,6 +124,7 @@ export var TileLayer = GridLayer.extend({
 	// Called only internally, overrides GridLayer's [`createTile()`](#gridlayer-createtile)
 	// to return an `<img>` HTML element with the appropriate image URL given `coords`. The `done`
 	// callback is called when the tile has been loaded.
+	// 创建瓦片
 	createTile: function (coords, done) {
 		var tile = document.createElement('img');
 
@@ -165,6 +158,7 @@ export var TileLayer = GridLayer.extend({
 	// @method getTileUrl(coords: Object): String
 	// Called only internally, returns the URL for a tile given its coordinates.
 	// Classes extending `TileLayer` can override this function to provide custom tile URL naming schemes.
+	// 获取并构建瓦片中的图片对应的url
 	getTileUrl: function (coords) {
 		var data = {
 			r: Browser.retina ? '@2x' : '',
@@ -223,7 +217,7 @@ export var TileLayer = GridLayer.extend({
 		return this.options.subdomains[index];
 	},
 
-	// stops loading all tiles in the background layer
+	// 停止加载背景层中的所有瓦片
 	_abortLoading: function () {
 		var i, tile;
 		for (i in this._tiles) {

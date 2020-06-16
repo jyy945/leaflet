@@ -63,26 +63,22 @@ Bounds.prototype = {
 		        (this.min.y + this.max.y) / 2, round);
 	},
 
-	// @method getBottomLeft(): Point
-	// Returns the bottom-left point of the bounds.
+	// 获取左下点
 	getBottomLeft: function () {
 		return new Point(this.min.x, this.max.y);
 	},
 
-	// @method getTopRight(): Point
-	// Returns the top-right point of the bounds.
+	// 获取右上点
 	getTopRight: function () { // -> Point
 		return new Point(this.max.x, this.min.y);
 	},
 
-	// @method getTopLeft(): Point
-	// Returns the top-left point of the bounds (i.e. [`this.min`](#bounds-min)).
+	// 获取左上点
 	getTopLeft: function () {
 		return this.min; // left, top
 	},
 
-	// @method getBottomRight(): Point
-	// Returns the bottom-right point of the bounds (i.e. [`this.max`](#bounds-max)).
+	// 获取右下点
 	getBottomRight: function () {
 		return this.max; // right, bottom
 	},

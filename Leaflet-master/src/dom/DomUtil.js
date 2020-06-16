@@ -153,9 +153,7 @@ export function getClass(el) {
 	return el.className.baseVal === undefined ? el.className : el.className.baseVal;
 }
 
-// @function setOpacity(el: HTMLElement, opacity: Number)
-// Set the opacity of an element (including old IE support).
-// `opacity` must be a number from `0` to `1`.
+// 设置dom透明度
 export function setOpacity(el, value) {
 	if ('opacity' in el.style) {
 		el.style.opacity = value;
@@ -164,6 +162,7 @@ export function setOpacity(el, value) {
 	}
 }
 
+// ie设置dom透明度
 function _setOpacityIE(el, value) {
 	var filter = false,
 	    filterName = 'DXImageTransform.Microsoft.Alpha';
@@ -202,10 +201,7 @@ export function testProp(props) {
 	return false;
 }
 
-// @function setTransform(el: HTMLElement, offset: Point, scale?: Number)
-// Resets the 3D CSS transform of `el` so it is translated by `offset` pixels
-// and optionally scaled by `scale`. Does not have an effect if the
-// browser doesn't support 3D CSS transforms.
+// 设置html元素的transform样式
 export function setTransform(el, offset, scale) {
 	var pos = offset || new Point(0, 0);
 

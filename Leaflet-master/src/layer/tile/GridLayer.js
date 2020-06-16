@@ -92,16 +92,14 @@ export var GridLayer = Layer.extend({
 		// [`keepBuffer`](#gridlayer-keepbuffer) option in desktop browsers.
 		updateWhenIdle: Browser.mobile,
 
-		// @option updateWhenZooming: Boolean = true
-		// By default, a smooth zoom animation (during a [touch zoom](#map-touchzoom) or a [`flyTo()`](#map-flyto)) will update grid layers every integer zoom level. Setting this option to `false` will update the grid layer only when the smooth animation ends.
-		updateWhenZooming: true,	//  缩放的时候默认继续加载瓦片
+		//  缩放的时候默认继续加载瓦片
+		updateWhenZooming: true,
 
 		// @option updateInterval: Number = 200
 		// Tiles will not update more than once every `updateInterval` milliseconds when panning.
 		updateInterval: 200,
 
-		// @option zIndex: Number = 1
-		// The explicit zIndex of the tile layer.
+		// 瓦片图层dom元素的z-index
 		zIndex: 1,
 
 		// @option bounds: LatLngBounds = undefined
@@ -128,12 +126,9 @@ export var GridLayer = Layer.extend({
 		// from `minNativeZoom` level and auto-scaled.
 		minNativeZoom: undefined,
 
-		// @option noWrap: Boolean = false
-		// Whether the layer is wrapped around the antimeridian. If `true`, the
-		// GridLayer will only be displayed once at low zoom levels. Has no
-		// effect when the [map CRS](#map-crs) doesn't wrap around. Can be used
-		// in combination with [`bounds`](#gridlayer-bounds) to prevent requesting
-		// tiles outside the CRS limits.
+		// 图层是否环绕在子午线周围。
+		// 如果为true，则GridLayer仅在低缩放级别显示一次。
+		// 当地图CRS不环绕时不起作用。可以与范围结合使用，以防止请求超出CRS限制的图块。
 		noWrap: false,
 
 		// @option pane: String = 'tilePane'
@@ -144,8 +139,7 @@ export var GridLayer = Layer.extend({
 		// A custom class name to assign to the tile layer. Empty by default.
 		className: '',
 
-		// @option keepBuffer: Number = 2
-		// When panning the map, keep this many rows and columns of tiles before unloading them.
+		// 在平移地图时，请保留许多行和列的图块，然后再卸载它们
 		keepBuffer: 2
 	},
 
@@ -153,13 +147,14 @@ export var GridLayer = Layer.extend({
 		Util.setOptions(this, options);
 	},
 
+	// 将图层添加到map
 	onAdd: function () {
-		this._initContainer();
+		this._initContainer();	// 初始化图层dom节点
 
 		this._levels = {};
 		this._tiles = {};
 
-		this._resetView();
+		this._resetView();	// 设置图层视图
 		this._update();
 	},
 
@@ -258,25 +253,20 @@ export var GridLayer = Layer.extend({
 		return events;
 	},
 
-	// @section Extension methods
-	// Layers extending `GridLayer` shall reimplement the following method.
-	// @method createTile(coords: Object, done?: Function): HTMLElement
-	// Called only internally, must be overridden by classes extending `GridLayer`.
-	// Returns the `HTMLElement` corresponding to the given `coords`. If the `done` callback
-	// is specified, it must be called when the tile has finished loading and drawing.
+	// 创建瓦片dom节点
 	createTile: function () {
 		return document.createElement('div');
 	},
 
-	// @section
-	// @method getTileSize: Point
-	// Normalizes the [tileSize option](#gridlayer-tilesize) into a point. Used by the `createTile()` method.
+	// 获取瓦片尺寸
 	getTileSize: function () {
 		var s = this.options.tileSize;
 		return s instanceof Point ? s : new Point(s, s);
 	},
 
+	// 更新图层dom节点的z-index
 	_updateZIndex: function () {
+		// 设置图层dom节点的z-index
 		if (this._container && this.options.zIndex !== undefined && this.options.zIndex !== null) {
 			this._container.style.zIndex = this.options.zIndex;
 		}
@@ -303,6 +293,7 @@ export var GridLayer = Layer.extend({
 		}
 	},
 
+	// 更新图层透明度
 	_updateOpacity: function () {
 		if (!this._map) { return; }
 
@@ -344,19 +335,21 @@ export var GridLayer = Layer.extend({
 
 	_onOpaqueTile: Util.falseFn,
 
+	// 初始化图层dom节点
 	_initContainer: function () {
 		if (this._container) { return; }
-
+		// 创建图层dom节点
 		this._container = DomUtil.create('div', 'leaflet-layer ' + (this.options.className || ''));
-		this._updateZIndex();
+		this._updateZIndex();	// 设置图层dom元素的z-index
 
 		if (this.options.opacity < 1) {
 			this._updateOpacity();
 		}
 
-		this.getPane().appendChild(this._container);
+		this.getPane().appendChild(this._container);	// 向对应的面板中添加图层dom
 	},
 
+	// 更新图层的层级信息
 	_updateLevels: function () {
 
 		var zoom = this._tileZoom,
@@ -380,16 +373,17 @@ export var GridLayer = Layer.extend({
 		var level = this._levels[zoom],
 		    map = this._map;
 
+		// 若不存在该zoom下的图层层级，则创建该zoom下的层级信息，
 		if (!level) {
 			level = this._levels[zoom] = {};
-
+			// 创建瓦片容器dom节点
 			level.el = DomUtil.create('div', 'leaflet-tile-container leaflet-zoom-animated', this._container);
 			level.el.style.zIndex = maxZoom;
 
 			level.origin = map.project(map.unproject(map.getPixelOrigin()), zoom).round();
 			level.zoom = zoom;
 
-			this._setZoomTransform(level, map.getCenter(), map.getZoom());
+			this._setZoomTransform(level, map.getCenter(), map.getZoom());	// 设置瓦片的位置
 
 			// force the browser to consider the newly added element for transition
 			Util.falseFn(level.el.offsetWidth);
@@ -453,6 +447,7 @@ export var GridLayer = Layer.extend({
 		}
 	},
 
+	// 删除所有瓦片
 	_removeAllTiles: function () {
 		for (var key in this._tiles) {
 			this._removeTile(key);
@@ -520,7 +515,7 @@ export var GridLayer = Layer.extend({
 			}
 		}
 	},
-
+	// 设置图层视图
 	_resetView: function (e) {
 		var animating = e && (e.pinch || e.flyTo);
 		this._setView(this._map.getCenter(), this._map.getZoom(), animating, animating);
@@ -544,8 +539,10 @@ export var GridLayer = Layer.extend({
 		return zoom;
 	},
 
+	// 设置图层视图
 	_setView: function (center, zoom, noPrune, noUpdate) {
 		var tileZoom = Math.round(zoom);
+		// 获取zoom
 		if ((this.options.maxZoom !== undefined && tileZoom > this.options.maxZoom) ||
 		    (this.options.minZoom !== undefined && tileZoom < this.options.minZoom)) {
 			tileZoom = undefined;
@@ -559,11 +556,12 @@ export var GridLayer = Layer.extend({
 
 			this._tileZoom = tileZoom;
 
+			// 若为瓦片图层则先停止加载所有瓦片
 			if (this._abortLoading) {
 				this._abortLoading();
 			}
 
-			this._updateLevels();
+			this._updateLevels();	// 更新图层的层级信息
 			this._resetGrid();
 
 			if (tileZoom !== undefined) {
@@ -588,8 +586,9 @@ export var GridLayer = Layer.extend({
 		}
 	},
 
+	// 设置瓦片dom的位置
 	_setZoomTransform: function (level, center, zoom) {
-		var scale = this._map.getZoomScale(zoom, level.zoom),
+		var scale = this._map.getZoomScale(zoom, level.zoom),	// zoom之间的比例
 		    translate = level.origin.multiplyBy(scale)
 		        .subtract(this._map._getNewPixelOrigin(center, zoom)).round();
 
@@ -600,17 +599,19 @@ export var GridLayer = Layer.extend({
 		}
 	},
 
+	// 设置瓦片坐标
 	_resetGrid: function () {
 		var map = this._map,
 		    crs = map.options.crs,
 		    tileSize = this._tileSize = this.getTileSize(),
 		    tileZoom = this._tileZoom;
 
-		var bounds = this._map.getPixelWorldBounds(this._tileZoom);
+		var bounds = this._map.getPixelWorldBounds(this._tileZoom);	// _tileZoom下的map边界
 		if (bounds) {
-			this._globalTileRange = this._pxBoundsToTileRange(bounds);
+			this._globalTileRange = this._pxBoundsToTileRange(bounds);	// 全局瓦片范围
 		}
 
+		// 计算瓦片的坐标
 		this._wrapX = crs.wrapLng && !this.options.noWrap && [
 			Math.floor(map.project([0, crs.wrapLng[0]], tileZoom).x / tileSize.x),
 			Math.ceil(map.project([0, crs.wrapLng[1]], tileZoom).x / tileSize.y)
@@ -627,6 +628,7 @@ export var GridLayer = Layer.extend({
 		this._update();
 	},
 
+	// 获取瓦片的像素范围
 	_getTiledPixelBounds: function (center) {
 		var map = this._map,
 		    mapZoom = map._animatingZoom ? Math.max(map._animateToZoom, map.getZoom()) : map.getZoom(),
@@ -637,7 +639,7 @@ export var GridLayer = Layer.extend({
 		return new Bounds(pixelCenter.subtract(halfSize), pixelCenter.add(halfSize));
 	},
 
-	// Private method to load tiles in the grid's active zoom level according to map bounds
+	// 根据地图边界在网格的活动缩放级别中加载平铺的私有方法
 	_update: function (center) {
 		var map = this._map;
 		if (!map) { return; }
@@ -646,11 +648,12 @@ export var GridLayer = Layer.extend({
 		if (center === undefined) { center = map.getCenter(); }
 		if (this._tileZoom === undefined) { return; }	// if out of minzoom/maxzoom
 
-		var pixelBounds = this._getTiledPixelBounds(center),
-		    tileRange = this._pxBoundsToTileRange(pixelBounds),
-		    tileCenter = tileRange.getCenter(),
-		    queue = [],
+		var pixelBounds = this._getTiledPixelBounds(center),	// 瓦片图层的像素范围
+		    tileRange = this._pxBoundsToTileRange(pixelBounds),	// 像素边界转换为瓦片坐标
+		    tileCenter = tileRange.getCenter(),	// 获取瓦片坐标中心点
+		    queue = [],	// 用于保存未加载的瓦片信息
 		    margin = this.options.keepBuffer,
+			// 当前瓦片范围加上外层缓存瓦片范围keepBuffer两层
 		    noPruneRange = new Bounds(tileRange.getBottomLeft().subtract([margin, -margin]),
 		                              tileRange.getTopRight().add([margin, -margin]));
 
@@ -667,11 +670,10 @@ export var GridLayer = Layer.extend({
 			}
 		}
 
-		// _update just loads more tiles. If the tile zoom level differs too much
-		// from the map's, let _setView reset levels and prune old tiles.
+		// _update只是加载更多的瓦片。如果瓦片缩放级别与地图相差太大，用_setView重置级别并删除旧的瓦片
 		if (Math.abs(zoom - this._tileZoom) > 1) { this._setView(center, zoom); return; }
 
-		// create a queue of coordinates to load tiles from
+		// 通过瓦片坐标遍历所有的瓦片，若未曾加载过则放在queue中
 		for (var j = tileRange.min.y; j <= tileRange.max.y; j++) {
 			for (var i = tileRange.min.x; i <= tileRange.max.x; i++) {
 				var coords = new Point(i, j);
@@ -679,7 +681,8 @@ export var GridLayer = Layer.extend({
 
 				if (!this._isValidTile(coords)) { continue; }
 
-				var tile = this._tiles[this._tileCoordsToKey(coords)];
+				var tile = this._tiles[this._tileCoordsToKey(coords)];	// 将瓦片缓存，键名为coords.x + ':' + coords.y + ':' + coords.z
+				// 若存在tile说明已经加载过该瓦片，并标记current为true。否则保存到queue
 				if (tile) {
 					tile.current = true;
 				} else {
@@ -688,31 +691,30 @@ export var GridLayer = Layer.extend({
 			}
 		}
 
-		// sort tile queue to load tiles in order of their distance to center
+		// 按瓦片到中心的距离排序瓷砖队列以加载瓷砖，距离中心近的瓦片将会先加载
 		queue.sort(function (a, b) {
 			return a.distanceTo(tileCenter) - b.distanceTo(tileCenter);
 		});
 
 		if (queue.length !== 0) {
-			// if it's the first batch of tiles to load
 			if (!this._loading) {
 				this._loading = true;
-				// @event loading: Event
-				// Fired when the grid layer starts loading tiles.
 				this.fire('loading');
 			}
 
 			// create DOM fragment to append tiles in one batch
-			var fragment = document.createDocumentFragment();
+			var fragment = document.createDocumentFragment();	// 创建dom碎片
 
+			// 遍历queue中的未加载过的瓦片，创建dom放入fragment碎片并进行加载
 			for (i = 0; i < queue.length; i++) {
 				this._addTile(queue[i], fragment);
 			}
 
-			this._level.el.appendChild(fragment);
+			this._level.el.appendChild(fragment);	// 将dom碎片添加到瓦片容器节点
 		}
 	},
 
+	// 检查瓦片是否合法
 	_isValidTile: function (coords) {
 		var crs = this._map.options.crs;
 
@@ -754,7 +756,8 @@ export var GridLayer = Layer.extend({
 		}
 		return bounds;
 	},
-	// converts tile coordinates to key for the tile cache
+
+	// 将瓦片坐标转换为key用于缓存
 	_tileCoordsToKey: function (coords) {
 		return coords.x + ':' + coords.y + ':' + coords.z;
 	},
@@ -805,9 +808,10 @@ export var GridLayer = Layer.extend({
 		}
 	},
 
+	// 加载瓦片
 	_addTile: function (coords, container) {
-		var tilePos = this._getTilePos(coords),
-		    key = this._tileCoordsToKey(coords);
+		var tilePos = this._getTilePos(coords),	// 获取瓦片相对于原始坐标的像素坐标
+		    key = this._tileCoordsToKey(coords);	// 获取瓦片对应的id
 
 		var tile = this.createTile(this._wrapCoords(coords), Util.bind(this._tileReady, this, coords));
 
@@ -891,6 +895,7 @@ export var GridLayer = Layer.extend({
 		}
 	},
 
+	// 获取瓦片相对于原始坐标的像素坐标
 	_getTilePos: function (coords) {
 		return coords.scaleBy(this.getTileSize()).subtract(this._level.origin);
 	},
@@ -903,6 +908,7 @@ export var GridLayer = Layer.extend({
 		return newCoords;
 	},
 
+	// 像素边界转换为瓦片范围
 	_pxBoundsToTileRange: function (bounds) {
 		var tileSize = this.getTileSize();
 		return new Bounds(

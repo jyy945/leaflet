@@ -4,51 +4,30 @@ import {LatLng} from '../LatLng';
 import {LatLngBounds} from '../LatLngBounds';
 import * as Util from '../../core/Util';
 
-/*
- * @namespace CRS
- * @crs L.CRS.Base
- * Object that defines coordinate reference systems for projecting
- * geographical points into pixel (screen) coordinates and back (and to
- * coordinates in other units for [WMS](https://en.wikipedia.org/wiki/Web_Map_Service) services). See
- * [spatial reference system](http://en.wikipedia.org/wiki/Coordinate_reference_system).
- *
- * Leaflet defines the most usual CRSs by default. If you want to use a
- * CRS not defined by default, take a look at the
- * [Proj4Leaflet](https://github.com/kartena/Proj4Leaflet) plugin.
- *
- * Note that the CRS instances do not inherit from Leaflet's `Class` object,
- * and can't be instantiated. Also, new classes can't inherit from them,
- * and methods can't be added to them with the `include` function.
- */
-
 // 定义默认的crs的方法
 export var CRS = {
-	// 经纬度转为屏幕坐标
+	// 经纬度转为像素坐标
 	latLngToPoint: function (latlng, zoom) {
-		var projectedPoint = this.projection.project(latlng),	// 经纬度转换为真实尺寸平面下的坐标（投影下的坐标）
+		var projectedPoint = this.projection.project(latlng),	// 经纬度转换为投影坐标
 		    scale = this.scale(zoom);	// 根据zoom获取尺寸
 
-		return this.transformation._transform(projectedPoint, scale);
+		return this.transformation._transform(projectedPoint, scale);	// 投影坐标转换为像素坐标
 	},
 
-	// 将container内的点转换为经纬度，Point=》Latlng
+	// 将像素坐标转换为经纬度
 	pointToLatLng: function (point, zoom) {
 		var scale = this.scale(zoom),
-		    untransformedPoint = this.transformation.untransform(point, scale);	// 获取墨卡托坐标
+		    untransformedPoint = this.transformation.untransform(point, scale);	// 像素坐标转换为投影坐标
 
-		return this.projection.unproject(untransformedPoint);	// 将墨卡托坐标转换为经纬度
+		return this.projection.unproject(untransformedPoint);	// 投影坐标转换为经纬度
 	},
 
-	// @method project(latlng: LatLng): Point
-	// Projects geographical coordinates into coordinates in units accepted for
-	// this CRS (e.g. meters for EPSG:3857, for passing it to WMS services).
+	// 调用投影坐标系对象中的方法，将经纬度转换为像素坐标
 	project: function (latlng) {
 		return this.projection.project(latlng);
 	},
 
-	// @method unproject(point: Point): LatLng
-	// Given a projected coordinate returns the corresponding LatLng.
-	// The inverse of `project`.
+	// 调用投影坐标系对象中的方法，将像素坐标转换为经纬度
 	unproject: function (point) {
 		return this.projection.unproject(point);
 	},
@@ -65,8 +44,7 @@ export var CRS = {
 		return Math.log(scale / 256) / Math.LN2;
 	},
 
-	// @method getProjectedBounds(zoom: Number): Bounds
-	// Returns the projection's bounds scaled and transformed for the provided `zoom`.
+	// 获取zoom值下的最大地图边界
 	getProjectedBounds: function (zoom) {
 		if (this.infinite) { return null; }
 

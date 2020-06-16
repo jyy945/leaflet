@@ -74,9 +74,9 @@ export var Path = Layer.extend({
 		bubblingMouseEvents: true
 	},
 
+	// 在图层添加之前，创建渲染器
 	beforeAdd: function (map) {
-		// Renderer is set here because we need to call renderer.getEvents
-		// before this.getEvents.
+		// 设置渲染器，在this.getEvents之前调用renderer.getEvents
 		this._renderer = map.getRenderer(this);
 	},
 

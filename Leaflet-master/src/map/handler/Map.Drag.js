@@ -86,7 +86,7 @@ export var Drag = Handler.extend({
 	_onDragStart: function () {
 		var map = this._map;
 
-		map._stop();	// 取消动画
+		map._stop();	// 取消其他动画
 		if (this._map.options.maxBounds && this._map.options.maxBoundsViscosity) {
 			var bounds = latLngBounds(this._map.options.maxBounds);
 

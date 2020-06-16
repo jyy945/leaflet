@@ -14,7 +14,7 @@ export var SphericalMercator = {
 	R: earthRadius,	// 地球的半径
 	MAX_LATITUDE: 85.0511287798,	// 最大的纬度
 
-	// 经纬度转为点
+	// 经纬度转为投影坐标
 	project: function (latlng) {
 		var d = Math.PI / 180,
 		    max = this.MAX_LATITUDE,
@@ -26,7 +26,7 @@ export var SphericalMercator = {
 			this.R * Math.log((1 + sin) / (1 - sin)) / 2);
 	},
 
-	// 点转为经纬度
+	// 投影坐标转换为经纬度
 	unproject: function (point) {
 		var d = 180 / Math.PI;
 

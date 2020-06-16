@@ -1,4 +1,4 @@
-export {Layer} from './Layer';
+export {Layer} from './Layer';  // 包含map初始化配置
 export {LayerGroup, layerGroup} from './LayerGroup';
 export {FeatureGroup, featureGroup} from './FeatureGroup';
 import {GeoJSON, geoJSON, geoJson, geometryToLayer, coordsToLatLng, coordsToLatLngs, latLngToCoords, latLngsToCoords, getFeature, asFeature} from './GeoJSON';

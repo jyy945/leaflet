@@ -57,8 +57,7 @@ Point.prototype = {
 		return this;
 	},
 
-	// @method subtract(otherPoint: Point): Point
-	// Returns the result of subtraction of the given point from the current.
+	// 点 - 点
 	subtract: function (point) {
 		return this.clone()._subtract(toPoint(point));
 	},

@@ -85,10 +85,8 @@ export var Map = Evented.extend({
 	initialize: function (id, options) { // (HTMLElement or String, Object)
 		options = Util.setOptions(this, options);
 
-		// Make sure to assign internal flags at the beginning,
-		// to avoid inconsistent state in some edge cases.
-		this._handlers = [];
-		this._layers = {};
+		this._handlers = [];    // 用于保存处理器
+		this._layers = {};  // 用于保存图层
 		this._zoomBoundLayers = {};
 		this._sizeChanged = true;
 
@@ -115,7 +113,7 @@ export var Map = Evented.extend({
 
 		this.callInitHooks();	// 执行父类的初始化钩子函数和手动添加到Map对象中初始化钩子函数
 
-		// don't animate on browsers without hardware-accelerated transitions or old Android/Opera
+		// 不在没有硬件加速转换或旧Android/Opera的浏览器上制作动画
 		this._zoomAnimated = DomUtil.TRANSITION && Browser.any3d && !Browser.mobileOpera &&
 				this.options.zoomAnimation;
 
@@ -126,7 +124,7 @@ export var Map = Evented.extend({
 			DomEvent.on(this._proxy, DomUtil.TRANSITION_END, this._catchTransitionEnd, this);
 		}
 
-		this._addLayers(this.options.layers);
+		this._addLayers(this.options.layers);   // 添加多个图层
 	},
 
 
@@ -135,10 +133,11 @@ export var Map = Evented.extend({
 	// @method setView(center: LatLng, zoom: Number, options?: Zoom/pan options): this
 	// Sets the view of the map (geographical center and zoom) with the given
 	// animation options.
+    // 设置map的视图
 	setView: function (center, zoom, options) {
 
 		zoom = zoom === undefined ? this._zoom : this._limitZoom(zoom);	// 获取zoom
-		center = this._limitCenter(toLatLng(center), zoom, this.options.maxBounds);
+		center = this._limitCenter(toLatLng(center), zoom, this.options.maxBounds); // 最新的中心点
 		options = options || {};
 
 		this._stop();	// 停止panTo的动画
@@ -162,7 +161,7 @@ export var Map = Evented.extend({
 			}
 		}
 
-		// animation didn't start, just reset the map view
+		// 动画没有启动，只是重置了地图视图
 		this._resetView(center, zoom);
 
 		return this;
@@ -254,9 +253,8 @@ export var Map = Evented.extend({
 		return this.fitBounds([[-90, -180], [90, 180]], options);
 	},
 
-	// @method panTo(latlng: LatLng, options?: Pan options): this
-	// Pans the map to a given center.
-	panTo: function (center, options) { // (LatLng)
+    // 将map平移到给定的中心点
+	panTo: function (center, options) {
 		return this.setView(center, this._zoom, {pan: options});
 	},
 
@@ -452,18 +450,17 @@ export var Map = Evented.extend({
 		return this;
 	},
 
-	// @method panInsideBounds(bounds: LatLngBounds, options?: Pan options): this
-	// Pans the map to the closest view that would lie inside the given bounds (if it's not already), controlling the animation using the options specific, if any.
+	// 将地图平移到位于给定边界内的最近视图.
 	panInsideBounds: function (bounds, options) {
-		this._enforcingBounds = true;
+		this._enforcingBounds = true;   // 用于标记地图平移到边界
 		var center = this.getCenter(),
-		    newCenter = this._limitCenter(center, this._zoom, toLatLngBounds(bounds));
-
+		    newCenter = this._limitCenter(center, this._zoom, toLatLngBounds(bounds));  // 新的经纬度中心点
+        // 若和之前的中心点不同，平移到该点
 		if (!center.equals(newCenter)) {
 			this.panTo(newCenter, options);
 		}
 
-		this._enforcingBounds = false;
+		this._enforcingBounds = false;  // 取消设置编边界
 		return this;
 	},
 
@@ -877,14 +874,13 @@ export var Map = Evented.extend({
 	// @method getPixelOrigin(): Point
 	// Returns the projected pixel coordinates of the top left point of
 	// the map layer (useful in custom layer and overlay implementations).
+    // 获取原始点
 	getPixelOrigin: function () {
 		this._checkIfLoaded();
 		return this._pixelOrigin;
 	},
 
-	// @method getPixelWorldBounds(zoom?: Number): Bounds
-	// Returns the world's bounds in pixel coordinates for zoom level `zoom`.
-	// If `zoom` is omitted, the map's current zoom level is used.
+    // 获取zoom下的世界map边界
 	getPixelWorldBounds: function (zoom) {
 		return this.options.crs.getProjectedBounds(zoom === undefined ? this.getZoom() : zoom);
 	},
@@ -913,9 +909,7 @@ export var Map = Evented.extend({
 
 	// @section Conversion Methods
 
-	// @method getZoomScale(toZoom: Number, fromZoom: Number): Number
-	// Returns the scale factor to be applied to a map transition from zoom level
-	// `fromZoom` to `toZoom`. Used internally to help with zoom animations.
+    // 获取新旧zoom比例
 	getZoomScale: function (toZoom, fromZoom) {
 		// TODO replace with universal implementation after refactoring projections
 		var crs = this.options.crs;
@@ -934,24 +928,19 @@ export var Map = Evented.extend({
 		return isNaN(zoom) ? Infinity : zoom;
 	},
 
-	// @method project(latlng: LatLng, zoom: Number): Point
-	// Projects a geographical coordinate `LatLng` according to the projection
-	// of the map's CRS, then scales it according to `zoom` and the CRS's
-	// `Transformation`. The result is pixel coordinate relative to
-	// the CRS origin.
-	// 经纬度转换为屏幕坐标
+	// 经纬度转换为像素坐标
 	project: function (latlng, zoom) {
 		zoom = zoom === undefined ? this._zoom : zoom;
 		return this.options.crs.latLngToPoint(toLatLng(latlng), zoom);
 	},
 
-	// 根据设置的坐标系，将定位点转换为经纬度
+	// 像素坐标转换为经纬度
 	unproject: function (point, zoom) {
 		zoom = zoom === undefined ? this._zoom : zoom;
 		return this.options.crs.pointToLatLng(toPoint(point), zoom);	// 获取经纬度
 	},
 
-	// 将point点转换为经纬度
+	// 根据_pixelOrigin原始像素点，将像素坐标点转换为经纬度
 	layerPointToLatLng: function (point) {
 		var projectedPoint = toPoint(point).add(this.getPixelOrigin());
 		return this.unproject(projectedPoint);
@@ -960,6 +949,7 @@ export var Map = Evented.extend({
 	// @method latLngToLayerPoint(latlng: LatLng): Point
 	// Given a geographical coordinate, returns the corresponding pixel coordinate
 	// relative to the [origin pixel](#map-getpixelorigin).
+    /// 根据_pixelOrigin原始像素点，将经纬度转换为像素坐标
 	latLngToLayerPoint: function (latlng) {
 		var projectedPoint = this.project(toLatLng(latlng))._round();
 		return projectedPoint._subtract(this.getPixelOrigin());
@@ -1085,7 +1075,7 @@ export var Map = Evented.extend({
 	// 初始化面板
 	_initPanes: function () {
 		var panes = this._panes = {};
-		this._paneRenderers = {};
+		this._paneRenderers = {};   // 面板渲染器
 		this._mapPane = this.createPane('mapPane', this._container);	// 创建map主面板，并添加到map元素中
 		DomUtil.setPosition(this._mapPane, new Point(0, 0));	// 设置map主面板的位置为0，0位置
 		this.createPane('tilePane');	// 创建瓦片图层面板，添加到map主面板中 HTMLElement = 200
@@ -1105,7 +1095,7 @@ export var Map = Evented.extend({
 
 	// private methods that modify map state
 
-	// @section Map state change events
+	// 重置地图视图
 	_resetView: function (center, zoom) {
 		DomUtil.setPosition(this._mapPane, new Point(0, 0));
 
@@ -1134,20 +1124,24 @@ export var Map = Evented.extend({
 		}
 	},
 
+    // 开始
 	_moveStart: function (zoomChanged, noMoveStart) {
 		// @event zoomstart: Event
 		// Fired when the map zoom is about to change (e.g. before zoom animation).
 		// @event movestart: Event
 		// Fired when the view of the map starts changing (e.g. user starts dragging the map).
+        // zoom发生改变触发zoomstart事件
 		if (zoomChanged) {
 			this.fire('zoomstart');
 		}
+		// 开始移动
 		if (!noMoveStart) {
 			this.fire('movestart');
 		}
 		return this;
 	},
 
+    // 移动视图
 	_move: function (center, zoom, data) {
 		if (zoom === undefined) {
 			zoom = this._zoom;
@@ -1156,18 +1150,17 @@ export var Map = Evented.extend({
 
 		this._zoom = zoom;
 		this._lastCenter = center;
-		this._pixelOrigin = this._getNewPixelOrigin(center);
+		this._pixelOrigin = this._getNewPixelOrigin(center);    // 设置像素原点
 
 		// @event zoom: Event
 		// Fired repeatedly during any change in zoom level, including zoom
 		// and fly animations.
+        // 若zoom发生改变则触发缩放事件
 		if (zoomChanged || (data && data.pinch)) {	// Always fire 'zoom' if pinching because #3530
 			this.fire('zoom', data);
 		}
 
-		// @event move: Event
-		// Fired repeatedly during any movement of the map, including pan and
-		// fly animations.
+        // 触发移动事件
 		return this.fire('move', data);
 	},
 
@@ -1200,6 +1193,7 @@ export var Map = Evented.extend({
 		return this.getMaxZoom() - this.getMinZoom();
 	},
 
+    // // 将地图平移到位于给定边界内的最近视图.
 	_panInsideMaxBounds: function () {
 		if (!this._enforcingBounds) {
 			this.panInsideBounds(this.options.maxBounds);
@@ -1362,10 +1356,7 @@ export var Map = Evented.extend({
 
 	// @section Other Methods
 
-	// @method whenReady(fn: Function, context?: Object): this
-	// Runs the given function `fn` when the map gets initialized with
-	// a view (center and zoom) and at least one layer, or immediately
-	// if it's already initialized, optionally passing a function context.
+	// 若已经加载加载完成，则直接执行回调函数，否则注册load事件，待加载完成触发
 	whenReady: function (callback, context) {
 		if (this._loaded) {
 			callback.call(context || this, {target: this});
@@ -1393,6 +1384,7 @@ export var Map = Evented.extend({
 		return pixelOrigin.subtract(this._getMapPanePos());
 	},
 
+    // 获取最新的像素原点
 	_getNewPixelOrigin: function (center, zoom) {
 		var viewHalf = this.getSize()._divideBy(2);
 		return this.project(center, zoom)._subtract(viewHalf)._add(this._getMapPanePos())._round();
@@ -1423,24 +1415,22 @@ export var Map = Evented.extend({
 		return this.latLngToLayerPoint(latlng).subtract(this._getCenterLayerPoint());
 	},
 
-	// adjust center for view to get inside bounds
-	_limitCenter: function (center, zoom, bounds) {
+	// 调整视图中心以进入边界
+	 _limitCenter: function (center, zoom, bounds) {
 
 		if (!bounds) { return center; }
 
-		var centerPoint = this.project(center, zoom),	// 获取经纬度的屏幕坐标
-		    viewHalf = this.getSize().divideBy(2),
-		    viewBounds = new Bounds(centerPoint.subtract(viewHalf), centerPoint.add(viewHalf)),	// 获取
-		    offset = this._getBoundsOffset(viewBounds, bounds, zoom);
+		var centerPoint = this.project(center, zoom),	// 获取中心点的像素坐标
+		    viewHalf = this.getSize().divideBy(2),  // container节点的一半宽高
+		    viewBounds = new Bounds(centerPoint.subtract(viewHalf), centerPoint.add(viewHalf)),	// 获取屏幕可展示的视角边界
+		    offset = this._getBoundsOffset(viewBounds, bounds, zoom);   // 返回中心点bounds在指定缩放时进入maxBounds所需的偏移量
 
-		// If offset is less than a pixel, ignore.
-		// This prevents unstable projections from getting into
-		// an infinite loop of tiny offsets.
+        // 若偏移量为0， 表示和maxbounds的中心点一直，不需要平移
 		if (offset.round().equals([0, 0])) {
 			return center;
 		}
 
-		return this.unproject(centerPoint.add(offset), zoom);
+		return this.unproject(centerPoint.add(offset), zoom);   // 返回最新的中心点
 	},
 
 	// adjust offset for view to get inside bounds
@@ -1453,12 +1443,13 @@ export var Map = Evented.extend({
 		return offset.add(this._getBoundsOffset(newBounds, bounds));
 	},
 
-	// returns offset needed for pxBounds to get inside maxBounds at a specified zoom
+	// 返回pxBounds在指定缩放时进入maxBounds所需的偏移量
 	_getBoundsOffset: function (pxBounds, maxBounds, zoom) {
 		var projectedMaxBounds = toBounds(
 		        this.project(maxBounds.getNorthEast(), zoom),
 		        this.project(maxBounds.getSouthWest(), zoom)
-		    ),
+		    ),  // 获取做大的像素坐标范围
+            // 所需的bounds和最大的bounds的偏移量
 		    minOffset = projectedMaxBounds.min.subtract(pxBounds.min),
 		    maxOffset = projectedMaxBounds.max.subtract(pxBounds.max),
 
@@ -1506,6 +1497,7 @@ export var Map = Evented.extend({
 		return true;
 	},
 
+    // 创建动画代理节点，TODO 暂不清楚作用
 	_createAnimProxy: function () {
 
 		var proxy = this._proxy = DomUtil.create('div', 'leaflet-proxy leaflet-zoom-animated');
@@ -1514,7 +1506,7 @@ export var Map = Evented.extend({
 		this.on('zoomanim', function (e) {
 			var prop = DomUtil.TRANSFORM,
 			    transform = this._proxy.style[prop];
-
+            // 设置html元素的transform样式
 			DomUtil.setTransform(this._proxy, this.project(e.center, e.zoom), this.getZoomScale(e.zoom, 1));
 
 			// workaround for case when transform is the same and so transitionend event is not fired

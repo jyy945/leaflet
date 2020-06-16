@@ -68,8 +68,7 @@ export var Layer = Evented.extend({
 		return this;
 	},
 
-	// @method getPane(name? : String): HTMLElement
-	// Returns the `HTMLElement` representing the named pane on the map. If `name` is omitted, returns the pane for this layer.
+	// 获取图层所在的面板
 	getPane: function (name) {
 		return this._map.getPane(name ? (this.options[name] || name) : this.options.pane);
 	},
@@ -90,15 +89,17 @@ export var Layer = Evented.extend({
 		return this.options.attribution;
 	},
 
+	// 向map注册layer相关事件，并将该layer对象添加到map
 	_layerAdd: function (e) {
 		var map = e.target;
 
-		// check in case layer gets added and then removed before the map is ready
+		// 在地图准备好之前检查图层是否被添加和删除
 		if (!map.hasLayer(this)) { return; }
 
 		this._map = map;
 		this._zoomAnimated = map._zoomAnimated;
 
+		// 向map注册事件
 		if (this.getEvents) {
 			var events = this.getEvents();
 			map.on(events, this);
@@ -107,8 +108,9 @@ export var Layer = Evented.extend({
 			}, this);
 		}
 
-		this.onAdd(map);
+		this.onAdd(map);	// 将图层添加到map
 
+		// 若存在属性文本，则添加到属性文本控件
 		if (this.getAttribution && map.attributionControl) {
 			map.attributionControl.addAttribution(this.getAttribution());
 		}
@@ -152,8 +154,7 @@ export var Layer = Evented.extend({
  * @section Methods for Layers and Controls
  */
 Map.include({
-	// @method addLayer(layer: Layer): this
-	// Adds the given layer to the map
+	// 将layer添加到map中
 	addLayer: function (layer) {
 		// 检查是否layer为Layer图层
 		if (!layer._layerAdd) {
@@ -161,23 +162,23 @@ Map.include({
 		}
 
 		var id = Util.stamp(layer);
-		// 若已经加载了该图层，则返回
+		// 若已经加载了该图层，则返回，否则添加到图层缓存数组中
 		if (this._layers[id]) { return this; }
 		this._layers[id] = layer;
 
 		layer._mapToAdd = this;
 
+		// 在图层添加之前，创建渲染器
 		if (layer.beforeAdd) {
 			layer.beforeAdd(this);
 		}
-
+		// 当准备好，将layer添加到
 		this.whenReady(layer._layerAdd, layer);
 
 		return this;
 	},
 
-	// @method removeLayer(layer: Layer): this
-	// Removes the given layer from the map.
+	// 从map中删除图层
 	removeLayer: function (layer) {
 		var id = Util.stamp(layer);
 
@@ -187,12 +188,14 @@ Map.include({
 			layer.onRemove(this);
 		}
 
+		// 删除属性文本控件的对应图层的属性文本
 		if (layer.getAttribution && this.attributionControl) {
 			this.attributionControl.removeAttribution(layer.getAttribution());
 		}
 
-		delete this._layers[id];
+		delete this._layers[id];	// 删除图层对象
 
+		// 若已经加载完成，则触发图层移除事件
 		if (this._loaded) {
 			this.fire('layerremove', {layer: layer});
 			layer.fire('remove');
@@ -203,20 +206,12 @@ Map.include({
 		return this;
 	},
 
-	// @method hasLayer(layer: Layer): Boolean
-	// Returns `true` if the given layer is currently added to the map
+	// 查看是否加载了图层
 	hasLayer: function (layer) {
 		return !!layer && (Util.stamp(layer) in this._layers);
 	},
 
-	/* @method eachLayer(fn: Function, context?: Object): this
-	 * Iterates over the layers of the map, optionally specifying context of the iterator function.
-	 * ```
-	 * map.eachLayer(function(layer){
-	 *     layer.bindPopup('Hello');
-	 * });
-	 * ```
-	 */
+	// 对所有的图层进行遍历执行method
 	eachLayer: function (method, context) {
 		for (var i in this._layers) {
 			method.call(context, this._layers[i]);
@@ -224,9 +219,10 @@ Map.include({
 		return this;
 	},
 
+	// 添加多个图层
 	_addLayers: function (layers) {
 		layers = layers ? (Util.isArray(layers) ? layers : [layers]) : [];
-
+		// 遍历图层，将其添加
 		for (var i = 0, len = layers.length; i < len; i++) {
 			this.addLayer(layers[i]);
 		}

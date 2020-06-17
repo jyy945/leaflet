@@ -116,9 +116,7 @@ Bounds.prototype = {
 		       (max.y <= this.max.y);
 	},
 
-	// @method intersects(otherBounds: Bounds): Boolean
-	// Returns `true` if the rectangle intersects the given bounds. Two bounds
-	// intersect if they have at least one point in common.
+	// 两个边界是否相交
 	intersects: function (bounds) { // (Bounds) -> Boolean
 		bounds = toBounds(bounds);
 

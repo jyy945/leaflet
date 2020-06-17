@@ -49,14 +49,15 @@ export var Canvas = Renderer.extend({
 		this._postponeUpdatePaths = true;
 	},
 
+	// 添加canvas时触发
 	onAdd: function () {
-		Renderer.prototype.onAdd.call(this);
+		Renderer.prototype.onAdd.call(this);	// 初始化渲染器，添加渲染器dom元素至对应面板，设置渲染器的像素范围、中心点、zoom等
 
-		// Redraw vectors since canvas is cleared upon removal,
-		// in case of removing the renderer itself from the map.
+		// 重绘矢量，因为画布在移除时被清除，以从映射中移除渲染器本身
 		this._draw();
 	},
 
+	// 初始化canvas dom元素
 	_initContainer: function () {
 		var container = this._container = document.createElement('canvas');
 
@@ -87,6 +88,7 @@ export var Canvas = Renderer.extend({
 		this._redraw();
 	},
 
+	// 更新canvas环境
 	_update: function () {
 		if (this._map._animatingZoom && this._bounds) { return; }
 
@@ -125,8 +127,9 @@ export var Canvas = Renderer.extend({
 		}
 	},
 
+	// 初始化所需图形信息
 	_initPath: function (layer) {
-		this._updateDashArray(layer);
+		this._updateDashArray(layer);	// 更新dashArray
 		this._layers[Util.stamp(layer)] = layer;
 
 		var order = layer._order = {
@@ -139,6 +142,7 @@ export var Canvas = Renderer.extend({
 		this._drawFirst = this._drawFirst || this._drawLast;
 	},
 
+	// 请求重新绘制
 	_addPath: function (layer) {
 		this._requestRedraw(layer);
 	},
@@ -200,13 +204,15 @@ export var Canvas = Renderer.extend({
 		}
 	},
 
+	// 请求重新绘制
 	_requestRedraw: function (layer) {
 		if (!this._map) { return; }
 
-		this._extendRedrawBounds(layer);
+		this._extendRedrawBounds(layer);	// 扩展绘制边界
 		this._redrawRequest = this._redrawRequest || Util.requestAnimFrame(this._redraw, this);
 	},
 
+	// 扩展绘制边界
 	_extendRedrawBounds: function (layer) {
 		if (layer._pxBounds) {
 			var padding = (layer.options.weight || 0) + 1;
@@ -216,6 +222,7 @@ export var Canvas = Renderer.extend({
 		}
 	},
 
+	// 重新绘制
 	_redraw: function () {
 		this._redrawRequest = null;
 
@@ -243,6 +250,7 @@ export var Canvas = Renderer.extend({
 		}
 	},
 
+	// 绘制canvas图形
 	_draw: function () {
 		var layer, bounds = this._redrawBounds;
 		this._ctx.save();
@@ -267,6 +275,7 @@ export var Canvas = Renderer.extend({
 		this._ctx.restore();  // Restore state before clipping.
 	},
 
+	// 渲染线段
 	_updatePoly: function (layer, closed) {
 		if (!this._drawing) { return; }
 
@@ -289,7 +298,7 @@ export var Canvas = Renderer.extend({
 			}
 		}
 
-		this._fillStroke(ctx, layer);
+		this._fillStroke(ctx, layer);	// 设置canvs的填充和线段
 
 		// TODO optimization: 1 fill/stroke for all features with equal style instead of 1 for each feature
 	},
@@ -318,6 +327,7 @@ export var Canvas = Renderer.extend({
 		this._fillStroke(ctx, layer);
 	},
 
+	// 设置canvs的填充和线段
 	_fillStroke: function (ctx, layer) {
 		var options = layer.options;
 

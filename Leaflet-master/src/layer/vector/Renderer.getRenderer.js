@@ -11,7 +11,7 @@ Map.include({
 		if (!renderer) {
 			renderer = this._renderer = this._createRenderer();
 		}
-		// 查看是否已存在该图层对象，若无则添加到map
+		// 查看是否已存在该渲染器，若无则添加到map
 		if (!this.hasLayer(renderer)) {
 			this.addLayer(renderer);
 		}

@@ -6,63 +6,21 @@ import {LatLngBounds} from '../../geo/LatLngBounds';
 import {Bounds} from '../../geometry/Bounds';
 import {Point} from '../../geometry/Point';
 
-/*
- * @class Polyline
- * @aka L.Polyline
- * @inherits Path
- *
- * A class for drawing polyline overlays on a map. Extends `Path`.
- *
- * @example
- *
- * ```js
- * // create a red polyline from an array of LatLng points
- * var latlngs = [
- * 	[45.51, -122.68],
- * 	[37.77, -122.43],
- * 	[34.04, -118.2]
- * ];
- *
- * var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
- *
- * // zoom the map to the polyline
- * map.fitBounds(polyline.getBounds());
- * ```
- *
- * You can also pass a multi-dimensional array to represent a `MultiPolyline` shape:
- *
- * ```js
- * // create a red polyline from an array of arrays of LatLng points
- * var latlngs = [
- * 	[[45.51, -122.68],
- * 	 [37.77, -122.43],
- * 	 [34.04, -118.2]],
- * 	[[40.78, -73.91],
- * 	 [41.83, -87.62],
- * 	 [32.76, -96.72]]
- * ];
- * ```
- */
-
-
 export var Polyline = Path.extend({
 
 	// @section
 	// @aka Polyline options
 	options: {
-		// @option smoothFactor: Number = 1.0
-		// How much to simplify the polyline on each zoom level. More means
-		// better performance and smoother look, and less means more accurate representation.
+		// 不同缩放级别下线的简化程度，更多意味着更好的性能和更平滑的外观，更少意味着更准确的表示。
 		smoothFactor: 1.0,
 
-		// @option noClip: Boolean = false
-		// Disable polyline clipping.
+		// 禁用折线裁剪
 		noClip: false
 	},
 
 	initialize: function (latlngs, options) {
 		Util.setOptions(this, options);
-		this._setLatLngs(latlngs);
+		this._setLatLngs(latlngs);	// 将数组转为latlng对象数组，并扩展边界
 	},
 
 	// @method getLatLngs(): LatLng[]
@@ -172,6 +130,7 @@ export var Polyline = Path.extend({
 		return this.redraw();
 	},
 
+	// 将数组转为latlng对象数组，并扩展边界
 	_setLatLngs: function (latlngs) {
 		this._bounds = new LatLngBounds();
 		this._latlngs = this._convertLatLngs(latlngs);
@@ -181,10 +140,10 @@ export var Polyline = Path.extend({
 		return LineUtil.isFlat(this._latlngs) ? this._latlngs : this._latlngs[0];
 	},
 
-	// recursively convert latlngs input into actual LatLng instances; calculate bounds along the way
+	// 将数组转为latlng对象数组，并扩展边界
 	_convertLatLngs: function (latlngs) {
 		var result = [],
-		    flat = LineUtil.isFlat(latlngs);
+		    flat = LineUtil.isFlat(latlngs);	// 是否为一维数组
 
 		for (var i = 0, len = latlngs.length; i < len; i++) {
 			if (flat) {
@@ -198,17 +157,19 @@ export var Polyline = Path.extend({
 		return result;
 	},
 
+	// 将经纬度坐标数组转换为像素坐标数组保存到_rings中，并扩展像素范围
 	_project: function () {
 		var pxBounds = new Bounds();
 		this._rings = [];
 		this._projectLatlngs(this._latlngs, this._rings, pxBounds);
 
 		if (this._bounds.isValid() && pxBounds.isValid()) {
-			this._rawPxBounds = pxBounds;
-			this._updateBounds();
+			this._rawPxBounds = pxBounds;	// 原始像素范围
+			this._updateBounds();// 更新图层像素边界范围_pxBounds
 		}
 	},
 
+	// 更新图层像素边界范围
 	_updateBounds: function () {
 		var w = this._clickTolerance(),
 		    p = new Point(w, w);
@@ -218,7 +179,7 @@ export var Polyline = Path.extend({
 		]);
 	},
 
-	// recursively turns latlngs into a set of rings with projected coordinates
+	// 将经纬度坐标数组转换为像素坐标数组保存到_rings中，并获取这些坐标的边界范围
 	_projectLatlngs: function (latlngs, result, projectedBounds) {
 		var flat = latlngs[0] instanceof LatLng,
 		    len = latlngs.length,
@@ -238,7 +199,8 @@ export var Polyline = Path.extend({
 		}
 	},
 
-	// clip polyline by renderer bounds so that we have less to render for performance
+	// 按渲染器边界剪裁多段线，这样我们就可以减少渲染以提高性能
+	// 仅显示屏幕上或屏幕附近的多段线点，提高性能
 	_clipPoints: function () {
 		var bounds = this._renderer._bounds;
 
@@ -275,7 +237,7 @@ export var Polyline = Path.extend({
 		}
 	},
 
-	// simplify each clipped part of the polyline for performance
+	// 简化多段线的每个剪裁部分以提高性能
 	_simplifyPoints: function () {
 		var parts = this._parts,
 		    tolerance = this.options.smoothFactor;
@@ -285,16 +247,18 @@ export var Polyline = Path.extend({
 		}
 	},
 
+	// 更新线段
 	_update: function () {
 		if (!this._map) { return; }
 
-		this._clipPoints();
-		this._simplifyPoints();
-		this._updatePath();
+		this._clipPoints();	// 按渲染器边界剪裁多段线，这样我们就可以减少渲染以提高性能
+		this._simplifyPoints();	// 简化多段线的每个剪裁部分以提高性能
+		this._updatePath();	// // 使用渲染器绘制图形
 	},
 
+	// 使用渲染器渲染图层
 	_updatePath: function () {
-		this._renderer._updatePoly(this);
+		this._renderer._updatePoly(this);	// 渲染线段
 	},
 
 	// Needed by the `Canvas` renderer for interactivity

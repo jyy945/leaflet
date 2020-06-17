@@ -31,9 +31,7 @@ export var Renderer = Layer.extend({
 	// @section
 	// @aka Renderer options
 	options: {
-		// @option padding: Number = 0.1
-		// How much to extend the clip area around the map view (relative to its size)
-		// e.g. 0.1 would be 10% of map view in each direction
+		// 围绕地图视图扩展剪辑区域的数量（相对于其大小），例如0.1将是每个方向的地图视图的10％
 		padding: 0.1,
 
 		// @option tolerance: Number = 0
@@ -47,17 +45,18 @@ export var Renderer = Layer.extend({
 		this._layers = this._layers || {};
 	},
 
+	// 添加渲染器dom元素至overlayers面板，设置渲染器的像素范围、中心点、zoom等
 	onAdd: function () {
 		if (!this._container) {
-			this._initContainer(); // defined by renderer implementations
+			this._initContainer(); // 初始化canvas dom元素
 
 			if (this._zoomAnimated) {
 				DomUtil.addClass(this._container, 'leaflet-zoom-animated');
 			}
 		}
 
-		this.getPane().appendChild(this._container);
-		this._update();
+		this.getPane().appendChild(this._container);	// 在overlayers面板中添加渲染器dom元素
+		this._update();	// 更新渲染环境,设置渲染器dom元素的范围，中心点等信息
 		this.on('update', this._updatePaths, this);
 	},
 
@@ -119,15 +118,15 @@ export var Renderer = Layer.extend({
 		}
 	},
 
+	// 更新图层
 	_updatePaths: function () {
 		for (var id in this._layers) {
 			this._layers[id]._update();
 		}
 	},
 
+	// 更新渲染环境
 	_update: function () {
-		// Update pixel bounds of renderer container (for positioning/sizing/clipping later)
-		// Subclasses are responsible of firing the 'update' event.
 		var p = this.options.padding,
 		    size = this._map.getSize(),
 		    min = this._map.containerPointToLayerPoint(size.multiplyBy(-p)).round();

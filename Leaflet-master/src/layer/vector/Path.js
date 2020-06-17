@@ -80,10 +80,11 @@ export var Path = Layer.extend({
 		this._renderer = map.getRenderer(this);
 	},
 
+	// 添加图层到map
 	onAdd: function () {
-		this._renderer._initPath(this);
-		this._reset();
-		this._renderer._addPath(this);
+		this._renderer._initPath(this);	// 初始化所需图形信息
+		this._reset();	// 重置环境
+		this._renderer._addPath(this);		// 请求重新绘制
 	},
 
 	onRemove: function () {
@@ -134,10 +135,10 @@ export var Path = Layer.extend({
 		return this._path;
 	},
 
+	// 重置
 	_reset: function () {
-		// defined in child classes
-		this._project();
-		this._update();
+		this._project();	// 将经纬度坐标数组转换为像素坐标数组保存到_rings中，并扩展像素范围
+		this._update();	// 更新图层
 	},
 
 	_clickTolerance: function () {

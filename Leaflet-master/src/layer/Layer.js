@@ -48,6 +48,7 @@ export var Layer = Evented.extend({
 	 * @method addTo(map: Map|LayerGroup): this
 	 * Adds the layer to the given map or layer group.
 	 */
+	// 将图层添加到map中
 	addTo: function (map) {
 		map.addLayer(this);
 		return this;
@@ -168,7 +169,7 @@ Map.include({
 
 		layer._mapToAdd = this;
 
-		// 在图层添加之前，创建渲染器
+		// 在path图层添加之前，创建渲染器。gridLayer
 		if (layer.beforeAdd) {
 			layer.beforeAdd(this);
 		}

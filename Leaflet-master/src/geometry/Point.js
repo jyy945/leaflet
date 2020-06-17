@@ -80,12 +80,12 @@ Point.prototype = {
 		return this;
 	},
 
-	// @method multiplyBy(num: Number): Point
-	// Returns the result of multiplication of the current point by the given number.
+	// 点 * num
 	multiplyBy: function (num) {
 		return this.clone()._multiplyBy(num);
 	},
 
+	// 点 * num
 	_multiplyBy: function (num) {
 		this.x *= num;
 		this.y *= num;

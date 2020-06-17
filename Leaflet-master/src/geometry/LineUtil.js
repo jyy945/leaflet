@@ -11,14 +11,8 @@ import * as Util from '../core/Util';
 // Simplify polyline with vertex reduction and Douglas-Peucker simplification.
 // Improves rendering performance dramatically by lessening the number of points to draw.
 
-// @function simplify(points: Point[], tolerance: Number): Point[]
-// Dramatically reduces the number of points in a polyline while retaining
-// its shape and returns a new array of simplified points, using the
-// [Douglas-Peucker algorithm](http://en.wikipedia.org/wiki/Douglas-Peucker_algorithm).
-// Used for a huge performance boost when processing/displaying Leaflet polylines for
-// each zoom level and also reducing visual noise. tolerance affects the amount of
-// simplification (lesser value means higher quality but slower and with more points).
-// Also released as a separated micro-library [Simplify.js](http://mourner.github.com/simplify-js/).
+// 大幅减少折线中的点数，同时保留 //它的形状，并使用 // [Douglas-Peucker算法]
+// 在处理/显示Leaflet折线时，可大大提高性能
 export function simplify(points, tolerance) {
 	if (!tolerance || !points.length) {
 		return points.slice();
@@ -110,11 +104,7 @@ function _reducePoints(points, sqTolerance) {
 
 var _lastCode;
 
-// @function clipSegment(a: Point, b: Point, bounds: Bounds, useLastCode?: Boolean, round?: Boolean): Point[]|Boolean
-// Clips the segment a to b by rectangular bounds with the
-// [Cohen-Sutherland algorithm](https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm)
-// (modifying the segment points directly!). Used by Leaflet to only show polyline
-// points that are on the screen or near, increasing performance.
+// Cohen-Sutherland算法，仅显示屏幕上或屏幕附近的多段线点，提高性能。
 export function clipSegment(a, b, bounds, useLastCode, round) {
 	var codeA = useLastCode ? _lastCode : _getBitCode(a, bounds),
 	    codeB = _getBitCode(b, bounds),
@@ -230,8 +220,7 @@ export function _sqClosestPointOnSegment(p, p1, p2, sqDist) {
 }
 
 
-// @function isFlat(latlngs: LatLng[]): Boolean
-// Returns true if `latlngs` is a flat array, false is nested.
+// 是否为一维数组
 export function isFlat(latlngs) {
 	return !Util.isArray(latlngs[0]) || (typeof latlngs[0][0] !== 'object' && typeof latlngs[0][0] !== 'undefined');
 }

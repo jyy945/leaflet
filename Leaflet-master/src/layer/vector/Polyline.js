@@ -150,6 +150,7 @@ export var Polyline = Path.extend({
 				result[i] = toLatLng(latlngs[i]);
 				this._bounds.extend(result[i]);
 			} else {
+
 				result[i] = this._convertLatLngs(latlngs[i]);
 			}
 		}

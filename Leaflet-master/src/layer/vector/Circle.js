@@ -74,21 +74,21 @@ export var Circle = CircleMarker.extend({
 
 		if (crs.distance === Earth.distance) {
 			var d = Math.PI / 180,
-			    latR = (this._mRadius / Earth.R) / d,
-			    top = map.project([lat + latR, lng]),
-			    bottom = map.project([lat - latR, lng]),
-			    p = top.add(bottom).divideBy(2),
-			    lat2 = map.unproject(p).lat,
+			    latR = (this._mRadius / Earth.R) / d,	// 纬度半径所占的角度
+			    top = map.project([lat + latR, lng]),	// 圆最上点的像素坐标
+			    bottom = map.project([lat - latR, lng]),	// 圆最下点的像素坐标
+			    p = top.add(bottom).divideBy(2),	// 圆心的像素坐标
+			    lat2 = map.unproject(p).lat,	// 圆心的纬度
 			    lngR = Math.acos((Math.cos(latR * d) - Math.sin(lat * d) * Math.sin(lat2 * d)) /
-			            (Math.cos(lat * d) * Math.cos(lat2 * d))) / d;
+			            (Math.cos(lat * d) * Math.cos(lat2 * d))) / d;	// 经度半径所占的角度
 
 			if (isNaN(lngR) || lngR === 0) {
 				lngR = latR / Math.cos(Math.PI / 180 * lat); // Fallback for edge case, #2425
 			}
 
 			this._point = p.subtract(map.getPixelOrigin());
-			this._radius = isNaN(lngR) ? 0 : p.x - map.project([lat2, lng - lngR]).x;
-			this._radiusY = p.y - top.y;
+			this._radius = isNaN(lngR) ? 0 : p.x - map.project([lat2, lng - lngR]).x;	// 圆在像素坐标下的x轴长度
+			this._radiusY = p.y - top.y;	// 圆在像素坐标下的y轴长度
 
 		} else {
 			var latlng2 = crs.unproject(crs.project(this._latlng).subtract([this._mRadius, 0]));

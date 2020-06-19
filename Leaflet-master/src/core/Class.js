@@ -85,7 +85,7 @@ Class.extend = function (props) {
 };
 
 
-// 向原型对象中添加属性
+// 向原型对象中添加方法
 Class.include = function (props) {
 	Util.extend(this.prototype, props);
 	return this;

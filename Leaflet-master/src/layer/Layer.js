@@ -100,6 +100,7 @@ export var Layer = Evented.extend({
 		this._map = map;
 		this._zoomAnimated = map._zoomAnimated;
 
+
 		// 向map注册事件
 		if (this.getEvents) {
 			var events = this.getEvents();
